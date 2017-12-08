@@ -177,23 +177,25 @@ class BaseModelAdmin(metaclass=forms.MediaDefiningClass):
             # rendered output. formfield can be None if it came from a
             # OneToOneField with parent_link=True or a M2M intermediary.
             if formfield and db_field.name not in self.raw_id_fields:
-                related_modeladmin = self.admin_site._registry.get(
-                    db_field.remote_field.model
-                )
-                wrapper_kwargs = {}
-                if related_modeladmin:
-                    wrapper_kwargs.update(
-                        can_add_related=related_modeladmin.has_add_permission(request),
-                        can_change_related=related_modeladmin.has_change_permission(
+                related_model = db_field.remote_field.model
+                if related_modeladmin := self.admin_site._registry.get(related_model):
+                    wrapper_kwargs = {
+                        "can_add_related": related_modeladmin.has_add_permission(
                             request
                         ),
-                        can_delete_related=related_modeladmin.has_delete_permission(
+                        "can_change_related": related_modeladmin.has_change_permission(
                             request
                         ),
-                        can_view_related=related_modeladmin.has_view_permission(
+                        "can_delete_related": related_modeladmin.has_delete_permission(
                             request
                         ),
-                    )
+                        "can_view_related": related_modeladmin.has_view_permission(
+                            request
+                        ),
+                    }
+                else:
+                    wrapper_kwargs = {}
+
                 formfield.widget = widgets.RelatedFieldWidgetWrapper(
                     formfield.widget,
                     db_field.remote_field,
