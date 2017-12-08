@@ -139,11 +139,10 @@ class UserAdmin(admin.ModelAdmin):
         if extra_context is None:
             extra_context = {}
         username_field = self.opts.get_field(self.model.USERNAME_FIELD)
-        defaults = {
-            "auto_populated_fields": (),
-            "username_help_text": username_field.help_text,
-        }
-        extra_context.update(defaults)
+        extra_context.update({
+            'auto_populated_fields': (),
+            'username_help_text': username_field.help_text,
+        })
         return super().add_view(request, form_url, extra_context)
 
     @sensitive_post_parameters_m
