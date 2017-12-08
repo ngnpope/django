@@ -235,7 +235,7 @@ class ValuesListIterable(BaseIterable):
             if fields != names:
                 # Reorder according to fields.
                 index_map = {name: idx for idx, name in enumerate(names)}
-                rowfactory = operator.itemgetter(*[index_map[f] for f in fields])
+                rowfactory = operator.itemgetter(*(index_map[f] for f in fields))
                 return map(
                     rowfactory,
                     compiler.results_iter(
@@ -2592,7 +2592,7 @@ class RelatedPopulator:
                 attname for attname in model_init_attnames if attname in attname_indexes
             ]
             self.reorder_for_init = operator.itemgetter(
-                *[attname_indexes[attname] for attname in self.init_list]
+                *(attname_indexes[attname] for attname in self.init_list)
             )
 
         self.model_cls = klass_info["model"]

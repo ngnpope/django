@@ -86,7 +86,7 @@ class Polygon(GEOSGeometry):
 
         n_holes = length - 1
         if n_holes:
-            holes_param = (GEOM_PTR * n_holes)(*[self._clone(r) for r in rings])
+            holes_param = (GEOM_PTR * n_holes)(*(self._clone(r) for r in rings))
         else:
             holes_param = None
 
