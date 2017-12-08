@@ -224,14 +224,10 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         conn_params.pop("assume_role", None)
         conn_params.pop("isolation_level", None)
         conn_params.pop("server_side_binding", None)
-        if settings_dict["USER"]:
-            conn_params["user"] = settings_dict["USER"]
-        if settings_dict["PASSWORD"]:
-            conn_params["password"] = settings_dict["PASSWORD"]
-        if settings_dict["HOST"]:
-            conn_params["host"] = settings_dict["HOST"]
-        if settings_dict["PORT"]:
-            conn_params["port"] = settings_dict["PORT"]
+        conn_params.update(
+            (key.lower(), settings_dict[key]) for key in
+            ("USER", "PASSWORD", "HOST", "PORT") if settings_dict[key]
+        )
         if is_psycopg3:
             conn_params["context"] = get_adapters_template(
                 settings.USE_TZ, self.timezone
