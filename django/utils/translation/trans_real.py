@@ -49,11 +49,20 @@ accept_language_re = _lazy_re_compile(
     re.VERBOSE,
 )
 
+# BCP 47 / RFC 5646, ignoring reserved bits and grandfathered tags.
+# https://www.rfc-editor.org/rfc/bcp/bcp47.txt
 language_code_re = _lazy_re_compile(
-    r"^[a-z]{1,8}(?:-[a-z0-9]{1,8})*(?:@[a-z0-9]{1,20})?$", re.IGNORECASE
+    r'^(?P<language>[a-z]{2,3}(?:-(?P<extlang>[a-z]{3}))?)'
+    r'(?:-(?P<script>[a-z]{4}))?'
+    r'(?:-(?P<region>[a-z]{2}|[0-9]{3}))?'
+    r'(?:-(?P<variant>[a-z0-9]{5,8}|[0-9][a-z0-9]{3}))?'
+    r'(?:-(?P<extension>[0-9a-wyz](?:-[a-z0-9]{2,8})+))?'
+    r'(?:-(?P<privateuse>x(?:-[a-z0-9]{1,8})+))?$',
+    re.IGNORECASE,
 )
 
-language_code_prefix_re = _lazy_re_compile(r"^/(\w+([@-]\w+){0,2})(/|$)")
+language_code_prefix_re = _lazy_re_compile(r"^/(\w+([@-]\w+){0,2})(/|$)")  # XXX: KILL?
+>>>>>>> 18c47e0ff0 (WIP -- Fixed #XXXXX -- Made parsing of LANGUAGE_CODE more strict.)
 
 
 @receiver(setting_changed)
