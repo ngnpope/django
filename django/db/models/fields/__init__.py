@@ -2331,79 +2331,6 @@ class NullBooleanField(BooleanField):
         return name, path, args, kwargs
 
 
-class PositiveIntegerRelDbTypeMixin:
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-        if not hasattr(cls, "integer_field_class"):
-            cls.integer_field_class = next(
-                (
-                    parent
-                    for parent in cls.__mro__[1:]
-                    if issubclass(parent, IntegerField)
-                ),
-                None,
-            )
-
-    def rel_db_type(self, connection):
-        """
-        Return the data type that a related field pointing to this field should
-        use. In most cases, a foreign key pointing to a positive integer
-        primary key will have an integer column data type but some databases
-        (e.g. MySQL) have an unsigned integer type. In that case
-        (related_fields_match_type=True), the primary key should return its
-        db_type.
-        """
-        if connection.features.related_fields_match_type:
-            return self.db_type(connection)
-        else:
-            return self.integer_field_class().db_type(connection=connection)
-
-
-class PositiveBigIntegerField(PositiveIntegerRelDbTypeMixin, BigIntegerField):
-    description = _("Positive big integer")
-
-    def get_internal_type(self):
-        return "PositiveBigIntegerField"
-
-    def formfield(self, **kwargs):
-        return super().formfield(
-            **{
-                "min_value": 0,
-                **kwargs,
-            }
-        )
-
-
-class PositiveIntegerField(PositiveIntegerRelDbTypeMixin, IntegerField):
-    description = _("Positive integer")
-
-    def get_internal_type(self):
-        return "PositiveIntegerField"
-
-    def formfield(self, **kwargs):
-        return super().formfield(
-            **{
-                "min_value": 0,
-                **kwargs,
-            }
-        )
-
-
-class PositiveSmallIntegerField(PositiveIntegerRelDbTypeMixin, SmallIntegerField):
-    description = _("Positive small integer")
-
-    def get_internal_type(self):
-        return "PositiveSmallIntegerField"
-
-    def formfield(self, **kwargs):
-        return super().formfield(
-            **{
-                "min_value": 0,
-                **kwargs,
-            }
-        )
-
-
 class SlugField(CharField):
     default_validators = [validators.validate_slug]
     description = _("Slug (up to %(max_length)s)")
@@ -2778,6 +2705,58 @@ class UUIDField(Field):
                 **kwargs,
             }
         )
+
+
+class PositiveFieldMixin:
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if not hasattr(cls, "integer_field_class"):
+            cls.integer_field_class = next(
+                (
+                    parent
+                    for parent in cls.__mro__[1:]
+                    if issubclass(parent, IntegerField)
+                ),
+                None,
+            )
+
+    def rel_db_type(self, connection):
+        """
+        Return the data type that a related field pointing to this field should
+        use. In most cases, a foreign key pointing to a positive integer
+        primary key will have an integer column data type but some databases
+        (e.g. MySQL) have an unsigned integer type. In that case
+        (related_fields_match_type=True), the primary key should return its
+        db_type.
+        """
+        if connection.features.related_fields_match_type:
+            return self.db_type(connection)
+        else:
+            return self.integer_field_class().db_type(connection=connection)
+
+    def formfield(self, **kwargs):
+        return super().formfield(**{"min_value": 0} | kwargs)
+
+
+class PositiveIntegerField(PositiveFieldMixin, IntegerField):
+    description = _("Positive integer")
+
+    def get_internal_type(self):
+        return "PositiveIntegerField"
+
+
+class PositiveBigIntegerField(PositiveFieldMixin, BigIntegerField):
+    description = _("Positive big integer")
+
+    def get_internal_type(self):
+        return "PositiveBigIntegerField"
+
+
+class PositiveSmallIntegerField(PositiveFieldMixin, SmallIntegerField):
+    description = _("Positive small integer")
+
+    def get_internal_type(self):
+        return "PositiveSmallIntegerField"
 
 
 class AutoFieldMixin:
