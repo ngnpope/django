@@ -27,6 +27,7 @@ class InsertVar:
         "DateTimeField": Database.DB_TYPE_TIMESTAMP,
         "DateField": Database.Date,
         "DecimalField": decimal.Decimal,
+        "PositiveDecimalField": decimal.Decimal,
     }
 
     def __init__(self, field):
@@ -84,6 +85,7 @@ class BulkInsertMapper:
         "FloatField": NUMBER,
         "IntegerField": NUMBER,
         "PositiveBigIntegerField": NUMBER,
+        "PositiveDecimalField": NUMBER,
         "PositiveFloatField": NUMBER,
         "PositiveIntegerField": NUMBER,
         "PositiveSmallIntegerField": NUMBER,

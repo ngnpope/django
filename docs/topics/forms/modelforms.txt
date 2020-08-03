@@ -111,6 +111,8 @@ Model field                         Form field
 
 :class:`PositiveBigIntegerField`    :class:`~django.forms.IntegerField`
 
+:class:`PositiveDecimalField`       :class:`~django.forms.DecimalField`
+
 :class:`PositiveFloatField`         :class:`~django.forms.FloatField`
 
 :class:`PositiveIntegerField`       :class:`~django.forms.IntegerField`

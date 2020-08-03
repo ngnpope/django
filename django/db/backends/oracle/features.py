@@ -156,6 +156,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
             **super().introspected_field_types,
             "GenericIPAddressField": "CharField",
             "PositiveBigIntegerField": "BigIntegerField",
+            "PositiveDecimalField": "DecimalField",
             "PositiveFloatField": "FloatField",
             "PositiveIntegerField": "IntegerField",
             "PositiveSmallIntegerField": "IntegerField",

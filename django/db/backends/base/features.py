@@ -150,6 +150,7 @@ class BaseDatabaseFeatures:
         "GenericIPAddressField": "GenericIPAddressField",
         "IntegerField": "IntegerField",
         "PositiveBigIntegerField": "PositiveBigIntegerField",
+        "PositiveDecimalField": "PositiveDecimalField",
         "PositiveFloatField": "PositiveFloatField",
         "PositiveIntegerField": "PositiveIntegerField",
         "PositiveSmallIntegerField": "PositiveSmallIntegerField",

@@ -77,6 +77,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         "JSONField": "text",
         "OneToOneField": "integer",
         "PositiveBigIntegerField": "bigint unsigned",
+        "PositiveDecimalField": "decimal unsigned",
         "PositiveFloatField": "real unsigned",
         "PositiveIntegerField": "integer unsigned",
         "PositiveSmallIntegerField": "smallint unsigned",
@@ -90,6 +91,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     data_type_check_constraints = {
         "JSONField": '(JSON_VALID("%(column)s") OR "%(column)s" IS NULL)',
         "PositiveBigIntegerField": '"%(column)s" >= 0',
+        "PositiveDecimalField": '"%(column)s" >= 0',
         "PositiveFloatField": '"%(column)s" >= 0',
         "PositiveIntegerField": '"%(column)s" >= 0',
         "PositiveSmallIntegerField": '"%(column)s" >= 0',
