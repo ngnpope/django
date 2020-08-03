@@ -205,6 +205,7 @@ Model fields
   (``db_comment``).
 * **fields.E170**: ``BinaryField``’s ``default`` cannot be a string. Use bytes
   content instead.
+* **fields.E171**: ``<field>``’s ``default`` cannot be negative.
 * **fields.E180**: ``<database>`` does not support ``JSONField``\s.
 * **fields.E190**: ``<database>`` does not support a database collation on
   ``<field_type>``\s.
