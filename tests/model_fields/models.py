@@ -102,6 +102,10 @@ class FloatModel(models.Model):
     size = models.FloatField()
 
 
+class PositiveFloatModel(models.Model):
+    size = models.PositiveFloatField()
+
+
 class BigS(models.Model):
     s = models.SlugField(max_length=255)
 

@@ -132,6 +132,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         "GenericIPAddressField": "VARCHAR2(39)",
         "OneToOneField": "NUMBER(11)",
         "PositiveBigIntegerField": "NUMBER(19)",
+        "PositiveFloatField": "DOUBLE PRECISION",
         "PositiveIntegerField": "NUMBER(11)",
         "PositiveSmallIntegerField": "NUMBER(11)",
         "SlugField": "NVARCHAR2(%(max_length)s)",
@@ -146,6 +147,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         "BooleanField": "%(qn_column)s IN (0,1)",
         "JSONField": "%(qn_column)s IS JSON",
         "PositiveBigIntegerField": "%(qn_column)s >= 0",
+        "PositiveFloatField": "%(qn_column)s >= 0",
         "PositiveIntegerField": "%(qn_column)s >= 0",
         "PositiveSmallIntegerField": "%(qn_column)s >= 0",
     }

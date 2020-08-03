@@ -227,6 +227,10 @@ class InspectDBTestCase(TestCase):
 
         assertFieldType("float_field", "models.FloatField()")
         assertFieldType(
+            "pos_float_field",
+            "models.%s()" % introspected_field_types["PositiveFloatField"],
+        )
+        assertFieldType(
             "int_field", "models.%s()" % introspected_field_types["IntegerField"]
         )
         assertFieldType(

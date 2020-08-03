@@ -60,6 +60,7 @@ __all__ = [
     "NOT_PROVIDED",
     "NullBooleanField",
     "PositiveBigIntegerField",
+    "PositiveFloatField",
     "PositiveIntegerField",
     "PositiveSmallIntegerField",
     "SlugField",
@@ -2736,6 +2737,13 @@ class PositiveFieldMixin:
 
     def formfield(self, **kwargs):
         return super().formfield(**{"min_value": 0} | kwargs)
+
+
+class PositiveFloatField(PositiveFieldMixin, FloatField):
+    description = _("Positive floating point number")
+
+    def get_internal_type(self):
+        return "PositiveFloatField"
 
 
 class PositiveIntegerField(PositiveFieldMixin, IntegerField):
