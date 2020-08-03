@@ -1443,6 +1443,24 @@ To query ``JSONField`` in the database, see :ref:`querying-jsonfield`.
     objects and arrays (represented in Python using :py:class:`dict` and
     :py:class:`list`) are supported.
 
+``PositiveAutoField``
+---------------------
+
+.. versionadded:: 5.2
+
+.. class:: PositiveAutoField(**options)
+
+Like :class:`AutoField`, but restricted to either positive or zero (``0``).
+
+``PositiveBigAutoField``
+------------------------
+
+.. versionadded:: 5.2
+
+.. class:: PositiveBigAutoField(**options)
+
+Like :class:`BigAutoField`, but restricted to either positive or zero (``0``).
+
 ``PositiveBigIntegerField``
 ---------------------------
 
@@ -1482,6 +1500,15 @@ The value ``0.0`` is accepted for consistency with
 Like an :class:`IntegerField`, but must be either positive or zero (``0``).
 Values from ``0`` to ``2147483647`` are safe in all databases supported by
 Django. The value ``0`` is accepted for backward compatibility reasons.
+
+``PositiveSmallAutoField``
+--------------------------
+
+.. versionadded:: 5.2
+
+.. class:: PositiveSmallAutoField(**options)
+
+Like :class:`SmallAutoField`, but restricted to either positive or zero (``0``).
 
 ``PositiveSmallIntegerField``
 -----------------------------

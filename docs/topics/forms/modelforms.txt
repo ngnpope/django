@@ -109,6 +109,10 @@ Model field                         Form field
 :class:`ManyToManyField`            :class:`~django.forms.ModelMultipleChoiceField`
                                     (see below)
 
+:class:`PositiveAutoField`          Not represented in the form
+
+:class:`PositiveBigAutoField`       Not represented in the form
+
 :class:`PositiveBigIntegerField`    :class:`~django.forms.IntegerField`
 
 :class:`PositiveDecimalField`       :class:`~django.forms.DecimalField`
@@ -116,6 +120,8 @@ Model field                         Form field
 :class:`PositiveFloatField`         :class:`~django.forms.FloatField`
 
 :class:`PositiveIntegerField`       :class:`~django.forms.IntegerField`
+
+:class:`PositiveSmallAutoField`     Not represented in the form
 
 :class:`PositiveSmallIntegerField`  :class:`~django.forms.IntegerField`
 

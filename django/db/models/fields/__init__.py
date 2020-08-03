@@ -59,10 +59,13 @@ __all__ = [
     "IntegerField",
     "NOT_PROVIDED",
     "NullBooleanField",
+    "PositiveAutoField",
+    "PositiveBigAutoField",
     "PositiveBigIntegerField",
     "PositiveDecimalField",
     "PositiveFloatField",
     "PositiveIntegerField",
+    "PositiveSmallAutoField",
     "PositiveSmallIntegerField",
     "SlugField",
     "SmallAutoField",
@@ -2866,7 +2869,7 @@ class AutoFieldMeta(type):
 
     @property
     def _subclasses(self):
-        return (BigAutoField, SmallAutoField)
+        return (BigAutoField, PositiveAutoField, PositiveBigAutoField, PositiveSmallAutoField, SmallAutoField)
 
     def __instancecheck__(self, instance):
         return isinstance(instance, self._subclasses) or super().__instancecheck__(
@@ -2901,3 +2904,27 @@ class SmallAutoField(AutoFieldMixin, SmallIntegerField):
 
     def rel_db_type(self, connection):
         return SmallIntegerField().db_type(connection=connection)
+
+
+class PositiveAutoField(AutoFieldMixin, PositiveIntegerField):
+    def get_internal_type(self):
+        return "PositiveAutoField"
+
+    def rel_db_type(self, connection):
+        return PositiveIntegerField().db_type(connection=connection)
+
+
+class PositiveBigAutoField(AutoFieldMixin, PositiveBigIntegerField):
+    def get_internal_type(self):
+        return "PositiveBigAutoField"
+
+    def rel_db_type(self, connection):
+        return PositiveBigIntegerField().db_type(connection=connection)
+
+
+class PositiveSmallAutoField(AutoFieldMixin, PositiveSmallIntegerField):
+    def get_internal_type(self):
+        return "PositiveSmallAutoField"
+
+    def rel_db_type(self, connection):
+        return PositiveSmallIntegerField().db_type(connection=connection)
