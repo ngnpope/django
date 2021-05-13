@@ -214,7 +214,7 @@ class DateFormatTests(SimpleTestCase):
     def test_invalid_time_format_specifiers(self):
         my_birthday = date(1984, 8, 7)
 
-        for specifier in ["a", "A", "f", "g", "G", "h", "H", "i", "P", "r", "s", "u"]:
+        for specifier in ["a", "A", "f", "g", "G", "h", "H", "i", "P", "s", "u"]:
             with self.subTest(specifier=specifier):
                 msg = (
                     "The format for date objects may not contain time-related "
@@ -250,6 +250,14 @@ class DateFormatTests(SimpleTestCase):
         ]:
             with self.subTest(time=t):
                 self.assertEqual(dateformat.time_format(t, "P"), expected)
+
+    def test_r_format_with_date(self):
+        # Assume midnight UTC if instance of datetime.date provided.
+        dt = date(1979, 7, 8)
+        self.assertEqual(
+            dateformat.format(dt, "r"),
+            "Sun, 08 Jul 1979 00:00:00 +0000",
+        )
 
     def test_r_format_with_non_en_locale(self):
         # Changing the locale doesn't change the "r" format.
