@@ -347,6 +347,15 @@ class Lexer:
             self.verbatim,
         )
 
+    def split(self):
+        """
+        Split a template string into tokens. This base implementation yield
+        None for the position of the token, but can be overridden to return the
+        start and end position in the source.
+        """
+        for token_string in tag_re.split(self.template_string):
+            yield token_string, None
+
     def tokenize(self):
         """
         Return a list of tokens from a given template_string.
@@ -354,9 +363,9 @@ class Lexer:
         in_tag = False
         lineno = 1
         result = []
-        for token_string in tag_re.split(self.template_string):
+        for token_string, position in self.split():
             if token_string:
-                result.append(self.create_token(token_string, None, lineno, in_tag))
+                result.append(self.create_token(token_string, position, lineno, in_tag))
                 lineno += token_string.count("\n")
             in_tag = not in_tag
         return result
@@ -397,37 +406,20 @@ class Lexer:
 
 
 class DebugLexer(Lexer):
-    def _tag_re_split_positions(self):
-        last = 0
-        for match in tag_re.finditer(self.template_string):
-            start, end = match.span()
-            yield last, start
-            yield start, end
-            last = end
-        yield last, len(self.template_string)
-
-    # This parallels the use of tag_re.split() in Lexer.tokenize().
-    def _tag_re_split(self):
-        for position in self._tag_re_split_positions():
-            yield self.template_string[slice(*position)], position
-
-    def tokenize(self):
+    def split(self):
         """
         Split a template string into tokens and annotates each token with its
         start and end position in the source. This is slower than the default
         lexer so only use it when debug is True.
         """
-        # For maintainability, it is helpful if the implementation below can
-        # continue to closely parallel Lexer.tokenize()'s implementation.
-        in_tag = False
-        lineno = 1
-        result = []
-        for token_string, position in self._tag_re_split():
-            if token_string:
-                result.append(self.create_token(token_string, position, lineno, in_tag))
-                lineno += token_string.count("\n")
-            in_tag = not in_tag
-        return result
+        string = self.template_string
+        last = 0
+        for match in tag_re.finditer(string):
+            start, end = match.span()
+            yield string[last:start], (last, start)
+            yield string[start:end], (start, end)
+            last = end
+        yield string[last:], (last, len(string))
 
 
 class Parser:
