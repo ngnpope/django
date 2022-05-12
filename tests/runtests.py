@@ -240,6 +240,7 @@ def setup_collect_tests(start_at, start_after, test_labels=None):
     log_config["loggers"]["django"]["level"] = "ERROR"
     settings.LOGGING = log_config
     settings.SILENCED_SYSTEM_CHECKS = [
+        "auth.C013",  # Allow use of TestPasswordHasher
         "fields.W342",  # ForeignKey(unique=True) -> OneToOneField
     ]
 

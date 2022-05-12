@@ -155,10 +155,10 @@ def identify_hasher(encoded):
     if (len(encoded) == 32 and "$" not in encoded) or (
         len(encoded) == 37 and encoded.startswith("md5$$")
     ):
-        algorithm = "unsalted_md5"
+        algorithm = "unsalted_md5"  # RemovedInDjango50Warning
     # Ancient versions of Django accepted SHA1 passwords with an empty salt.
     elif len(encoded) == 46 and encoded.startswith("sha1$$"):
-        algorithm = "unsalted_sha1"
+        algorithm = "unsalted_sha1"  # RemovedInDjango50Warning
     else:
         algorithm = encoded.split("$", 1)[0]
     return get_hasher(algorithm)
@@ -624,12 +624,21 @@ class ScryptPasswordHasher(BasePasswordHasher):
         pass
 
 
+# RemovedInDjango50Warning.
 class SHA1PasswordHasher(BasePasswordHasher):
     """
     The SHA1 password hashing algorithm (not recommended)
     """
 
     algorithm = "sha1"
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "django.contrib.auth.hashers.SHA1PasswordHasher is deprecated.",
+            RemovedInDjango50Warning,
+            stacklevel=2,
+        )
+        super().__init__(*args, **kwargs)
 
     def encode(self, password, salt):
         self._check_encode_args(password, salt)
@@ -666,12 +675,21 @@ class SHA1PasswordHasher(BasePasswordHasher):
         pass
 
 
+# RemovedInDjango50Warning.
 class MD5PasswordHasher(BasePasswordHasher):
     """
     The Salted MD5 password hashing algorithm (not recommended)
     """
 
     algorithm = "md5"
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "django.contrib.auth.hashers.MD5PasswordHasher is deprecated.",
+            RemovedInDjango50Warning,
+            stacklevel=2,
+        )
+        super().__init__(*args, **kwargs)
 
     def encode(self, password, salt):
         self._check_encode_args(password, salt)
@@ -708,6 +726,7 @@ class MD5PasswordHasher(BasePasswordHasher):
         pass
 
 
+# RemovedInDjango50Warning.
 class UnsaltedSHA1PasswordHasher(BasePasswordHasher):
     """
     Very insecure algorithm that you should *never* use; store SHA1 hashes
@@ -719,6 +738,14 @@ class UnsaltedSHA1PasswordHasher(BasePasswordHasher):
     """
 
     algorithm = "unsalted_sha1"
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "django.contrib.auth.hashers.UnsaltedSHA1PasswordHasher is deprecated.",
+            RemovedInDjango50Warning,
+            stacklevel=2,
+        )
+        super().__init__(*args, **kwargs)
 
     def salt(self):
         return ""
@@ -752,6 +779,7 @@ class UnsaltedSHA1PasswordHasher(BasePasswordHasher):
         pass
 
 
+# RemovedInDjango50Warning.
 class UnsaltedMD5PasswordHasher(BasePasswordHasher):
     """
     Incredibly insecure algorithm that you should *never* use; stores unsalted
@@ -765,6 +793,14 @@ class UnsaltedMD5PasswordHasher(BasePasswordHasher):
     """
 
     algorithm = "unsalted_md5"
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "django.contrib.auth.hashers.UnsaltedMD5PasswordHasher is deprecated.",
+            RemovedInDjango50Warning,
+            stacklevel=2,
+        )
+        super().__init__(*args, **kwargs)
 
     def salt(self):
         return ""
@@ -852,6 +888,51 @@ class CryptPasswordHasher(BasePasswordHasher):
             _("salt"): decoded["salt"],
             _("hash"): mask_hash(decoded["hash"], show=3),
         }
+
+    def harden_runtime(self, password, encoded):
+        pass
+
+
+class TestPasswordHasher(BasePasswordHasher):
+    """
+    A fast, insecure password hasher to use for speeding up testing only.
+
+    This password hasher must *never* be used outside of local development
+    environments or continuous integration pipelines.
+    """
+
+    algorithm = "md5"
+
+    def encode(self, password, salt):
+        self._check_encode_args(password, salt)
+        hash = md5((salt + password).encode()).hexdigest()
+        return f"{self.algorithm}${salt}${hash}"
+
+    def decode(self, encoded):
+        algorithm, salt, hash = encoded.split("$", 2)
+        assert algorithm == self.algorithm
+        return {
+            "algorithm": algorithm,
+            "hash": hash,
+            "salt": salt,
+        }
+
+    def verify(self, password, encoded):
+        decoded = self.decode(encoded)
+        encoded_2 = self.encode(password, decoded["salt"])
+        return constant_time_compare(encoded, encoded_2)
+
+    def safe_summary(self, encoded):
+        decoded = self.decode(encoded)
+        return {
+            _("algorithm"): decoded["algorithm"],
+            _("salt"): mask_hash(decoded["salt"], show=2),
+            _("hash"): mask_hash(decoded["hash"]),
+        }
+
+    def must_update(self, encoded):
+        decoded = self.decode(encoded)
+        return must_update_salt(decoded["salt"], self.salt_entropy)
 
     def harden_runtime(self, password, encoded):
         pass

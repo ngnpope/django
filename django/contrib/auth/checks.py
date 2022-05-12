@@ -5,6 +5,7 @@ from django.apps import apps
 from django.conf import settings
 from django.core import checks
 
+from .hashers import TestPasswordHasher, get_hashers
 from .management import _get_builtin_permissions
 
 
@@ -216,5 +217,23 @@ def check_models_permissions(app_configs=None, **kwargs):
                     )
                 )
             codenames.add(codename)
+
+    return errors
+
+
+def check_password_hashers(app_configs=None, **kwargs):
+    errors = []
+
+    for hasher in get_hashers():
+        if isinstance(hasher, TestPasswordHasher):
+            errors.append(
+                checks.Critical(
+                    "The test password hasher must never be deployed outside of local "
+                    "development environments or continuous integration pipelines. It "
+                    "is solely used for speeding up testing.",
+                    obj=hasher,
+                    id="auth.C013",
+                )
+            )
 
     return errors

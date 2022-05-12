@@ -96,6 +96,7 @@ class TestUtilsHashPass(SimpleTestCase):
         self.assertIs(hasher.must_update(encoded_weak_salt), True)
         self.assertIs(hasher.must_update(encoded_strong_salt), False)
 
+    @ignore_warnings(category=RemovedInDjango50Warning)
     @override_settings(
         PASSWORD_HASHERS=["django.contrib.auth.hashers.SHA1PasswordHasher"]
     )
@@ -122,6 +123,15 @@ class TestUtilsHashPass(SimpleTestCase):
         self.assertIs(hasher.must_update(encoded_strong_salt), False)
 
     @override_settings(
+        PASSWORD_HASHERS=["django.contrib.auth.hashers.SHA1PasswordHasher"]
+    )
+    def test_sha1_deprecation_warning(self):
+        msg = "django.contrib.auth.hashers.SHA1PasswordHasher is deprecated."
+        with self.assertRaisesMessage(RemovedInDjango50Warning, msg):
+            get_hasher("sha1")
+
+    @ignore_warnings(category=RemovedInDjango50Warning)
+    @override_settings(
         PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"]
     )
     def test_md5(self):
@@ -145,6 +155,15 @@ class TestUtilsHashPass(SimpleTestCase):
         self.assertIs(hasher.must_update(encoded_strong_salt), False)
 
     @override_settings(
+        PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"]
+    )
+    def test_md5_deprecation_warning(self):
+        msg = "django.contrib.auth.hashers.MD5PasswordHasher is deprecated."
+        with self.assertRaisesMessage(RemovedInDjango50Warning, msg):
+            get_hasher("md5")
+
+    @ignore_warnings(category=RemovedInDjango50Warning)
+    @override_settings(
         PASSWORD_HASHERS=["django.contrib.auth.hashers.UnsaltedMD5PasswordHasher"]
     )
     def test_unsalted_md5(self):
@@ -165,6 +184,7 @@ class TestUtilsHashPass(SimpleTestCase):
         self.assertTrue(check_password("", blank_encoded))
         self.assertFalse(check_password(" ", blank_encoded))
 
+    @ignore_warnings(category=RemovedInDjango50Warning)
     @override_settings(
         PASSWORD_HASHERS=["django.contrib.auth.hashers.UnsaltedMD5PasswordHasher"]
     )
@@ -174,6 +194,15 @@ class TestUtilsHashPass(SimpleTestCase):
         with self.assertRaisesMessage(ValueError, msg):
             hasher.encode("password", salt="salt")
 
+    @override_settings(
+        PASSWORD_HASHERS=["django.contrib.auth.hashers.UnsaltedMD5PasswordHasher"]
+    )
+    def test_unsalted_md5_deprecation_warning(self):
+        msg = "django.contrib.auth.hashers.UnsaltedMD5PasswordHasher is deprecated."
+        with self.assertRaisesMessage(RemovedInDjango50Warning, msg):
+            get_hasher("unsalted_md5")
+
+    @ignore_warnings(category=RemovedInDjango50Warning)
     @override_settings(
         PASSWORD_HASHERS=["django.contrib.auth.hashers.UnsaltedSHA1PasswordHasher"]
     )
@@ -194,6 +223,7 @@ class TestUtilsHashPass(SimpleTestCase):
         self.assertTrue(check_password("", blank_encoded))
         self.assertFalse(check_password(" ", blank_encoded))
 
+    @ignore_warnings(category=RemovedInDjango50Warning)
     @override_settings(
         PASSWORD_HASHERS=["django.contrib.auth.hashers.UnsaltedSHA1PasswordHasher"]
     )
@@ -202,6 +232,14 @@ class TestUtilsHashPass(SimpleTestCase):
         msg = "salt must be empty."
         with self.assertRaisesMessage(ValueError, msg):
             hasher.encode("password", salt="salt")
+
+    @override_settings(
+        PASSWORD_HASHERS=["django.contrib.auth.hashers.UnsaltedSHA1PasswordHasher"]
+    )
+    def test_unsalted_sha1_deprecation_warning(self):
+        msg = "django.contrib.auth.hashers.UnsaltedSHA1PasswordHasher is deprecated."
+        with self.assertRaisesMessage(RemovedInDjango50Warning, msg):
+            get_hasher("unsalted_sha1")
 
     @ignore_warnings(category=RemovedInDjango50Warning)
     @skipUnless(crypt, "no crypt module to generate password.")

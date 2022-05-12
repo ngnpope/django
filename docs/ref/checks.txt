@@ -829,6 +829,9 @@ The following checks are performed on the default
   for its builtin permission names to be at most 100 characters.
 * **auth.E012**: The permission codenamed ``<codename>`` of model ``<model>``
   is longer than 100 characters.
+* **auth.C013**: The test password hasher must never be deployed outside of
+  local development environments or continuous integration pipelines. It is
+  solely used for speeding up testing.
 
 ``contenttypes``
 ----------------

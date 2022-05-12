@@ -73,7 +73,7 @@ class BaseBackendTest(TestCase):
             self.user.has_perms(object())
 
 
-class CountingMD5PasswordHasher(MD5PasswordHasher):
+class CountingTestPasswordHasher(MD5PasswordHasher):
     """Hasher that counts how many times it computes a hash."""
 
     calls = 0
@@ -260,7 +260,7 @@ class BaseModelBackendTest:
         self.assertEqual(len(user.get_all_permissions()), len(Permission.objects.all()))
 
     @override_settings(
-        PASSWORD_HASHERS=["auth_tests.test_auth_backends.CountingMD5PasswordHasher"]
+        PASSWORD_HASHERS=["auth_tests.test_auth_backends.CountingTestPasswordHasher"]
     )
     def test_authentication_timing(self):
         """Hasher is run once regardless of whether the user exists. Refs #20760."""
@@ -268,20 +268,20 @@ class BaseModelBackendTest:
         self.user.set_password("test")
         self.user.save()
 
-        CountingMD5PasswordHasher.calls = 0
+        CountingTestPasswordHasher.calls = 0
         username = getattr(self.user, self.UserModel.USERNAME_FIELD)
         authenticate(username=username, password="test")
-        self.assertEqual(CountingMD5PasswordHasher.calls, 1)
+        self.assertEqual(CountingTestPasswordHasher.calls, 1)
 
-        CountingMD5PasswordHasher.calls = 0
+        CountingTestPasswordHasher.calls = 0
         authenticate(username="no_such_user", password="test")
-        self.assertEqual(CountingMD5PasswordHasher.calls, 1)
+        self.assertEqual(CountingTestPasswordHasher.calls, 1)
 
     @override_settings(
-        PASSWORD_HASHERS=["auth_tests.test_auth_backends.CountingMD5PasswordHasher"]
+        PASSWORD_HASHERS=["auth_tests.test_auth_backends.CountingTestPasswordHasher"]
     )
     def test_authentication_without_credentials(self):
-        CountingMD5PasswordHasher.calls = 0
+        CountingTestPasswordHasher.calls = 0
         for credentials in (
             {},
             {"username": getattr(self.user, self.UserModel.USERNAME_FIELD)},
@@ -290,7 +290,7 @@ class BaseModelBackendTest:
             with self.subTest(credentials=credentials):
                 with self.assertNumQueries(0):
                     authenticate(**credentials)
-                self.assertEqual(CountingMD5PasswordHasher.calls, 0)
+                self.assertEqual(CountingTestPasswordHasher.calls, 0)
 
 
 class ModelBackendTest(BaseModelBackendTest, TestCase):
