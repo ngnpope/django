@@ -93,7 +93,7 @@ class TimeFormat(Formatter):
             return ""
 
         try:
-            if hasattr(self.data, "tzinfo") and self.data.tzinfo:
+            if getattr(self.data, "tzinfo", None):
                 return self.data.tzname() or ""
         except NotImplementedError:
             pass
