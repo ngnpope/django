@@ -139,7 +139,8 @@ class TimeFormat(Formatter):
         if self._no_timezone_or_datetime_is_ambiguous_or_imaginary:
             return ""
 
-        seconds = self.Z()
+        offset = self.timezone.utcoffset(self.data)
+        seconds = offset.days * 86400 + offset.seconds
         sign = "-" if seconds < 0 else "+"
         seconds = abs(seconds)
         return "%s%02d%02d" % (sign, seconds // 3600, (seconds // 60) % 60)
