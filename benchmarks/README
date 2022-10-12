@@ -1,0 +1,19 @@
+Run the following commands to prepare for benchmarking:
+
+```console
+$ source venv/bin/activate
+$ pip install --requirement=benchmarks/requirements.txt --upgrade
+$ git remote update
+```
+
+Run the following commands to execute and compare benchmarks:
+
+```console
+$ name='limitedstream'
+$ commit=$(git rev-parse --short HEAD)
+$ git checkout upstream/main
+$ python "benchmarks/bench_${name}.py" --output="benchmarks/bench_${name}-${commit}.json"
+$ git checkout <branch>
+$ python "benchmarks/bench_${name}.py" --output="benchmarks/bench_${name}-patch.json"
+$ pyperf compare_to "benchmarks/bench_${name}-${commit}.json" "benchmarks/bench_${name}-patch.json"
+```

@@ -1,0 +1,50 @@
+https://www.php.net/manual/en/datetime.format.php#refsect1-datetime.format-parameters
+
+W	ISO-8601 week number of year, weeks starting on Monday	Example: 42 (the 42nd week in the year)
+o	ISO-8601 week-numbering year. This has the same value as Y, except that if the ISO week number (W) belongs to the previous or next year, that year is used instead.	Examples: 1999 or 2003
+
+L	Whether it's a leap year	1 if it is a leap year, 0 otherwise.
+I (capital i)	Whether or not the date is in daylight saving time	1 if Daylight Saving Time, 0 otherwise.
+
+N	ISO-8601 numeric representation of the day of the week	1 (for Monday) through 7 (for Sunday)
+a	Lowercase Ante meridiem and Post meridiem	am or pm
+z	The day of the year (starting from 0)	0 through 365
+
+B	Swatch Internet time	000 through 999
+v	Milliseconds. Same note applies as for u.	Example: 654
+
+O	Difference to Greenwich time (GMT) without colon between hours and minutes	Example: +0200
+P	Difference to Greenwich time (GMT) with colon between hours and minutes	Example: +02:00
+p	The same as P, but returns Z instead of +00:00	Example: +02:00
+Z	Timezone offset in seconds. The offset for timezones west of UTC is always negative, and for those east of UTC is always positive.	-43200 through 50400
+
+
+X	An expanded full numeric representation of a year, at least 4 digits, with - for years BCE, and + for years CE.	Examples: -0055, +0787, +1999, +10191
+x	An expanded full numeric representation if requried, or a standard full numeral representation if possible (like Y). At least four digits. Years BCE are prefixed with a -. Years beyond (and including) 10000 are prefixed by a +.	Examples: -0055, 0787, 1999, +10191
+
+
+ABDFGHILMNOPSTUWYZacdeghijlmnoprstuvwyz     Provided by PHP
+CEJKQRVXbfkqx                               Not provided by PHP
+f                                           Extra in Django
+NP                                          Overridden in Django.
+
+
+
+
+
+B   swatch internet time    000-999
+v   milliseconds            000-999
+P  Difference to Greenwich time (GMT) with colon between hours and minutes	+02:00 
+p   The same as P, but returns Z instead of +00:00
+
+   ((UTC+1minutes * 60) + (UTC+1hours * 3600)) / 86.4
+
+		/* Swatch Beat a.k.a. Internet Time */
+		case 'B':
+			retval = ((((long)t->sse)-(((long)t->sse) - ((((long)t->sse) % 86400) + 3600))) * 10);
+			if (retval < 0) {
+				retval += 864000;
+			}
+			/* Make sure to do this on a positive int to avoid rounding errors */
+			retval = (retval / 864) % 1000;
+			break;
