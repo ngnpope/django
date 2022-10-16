@@ -39,6 +39,10 @@ details on these changes.
 
 * The ``TransactionTestCase.assertQuerysetEqual()`` method will be removed.
 
+* The undocumented ``django.utils.dateformat.DateFormat`` and
+  ``django.utils.dateformat.TimeFormat`` classes, and the
+  ``django.utils.dateformat.time_format()`` function will be removed.
+
 .. _deprecation-removed-in-5.0:
 
 5.0
