@@ -3673,7 +3673,7 @@ class OperationTests(OperationTestBase):
         operation = migrations.AddIndex("Pony", index)
         self.assertEqual(
             operation.describe(),
-            "Create index test_addfuncin_pony_abs_idx on Abs(F(weight)) on model Pony",
+            "Create index test_addfuncin_pony_abs_idx on Abs(F('weight')) on model Pony",
         )
         self.assertEqual(
             operation.migration_name_fragment,

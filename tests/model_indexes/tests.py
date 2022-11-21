@@ -59,7 +59,7 @@ class SimpleIndexesTests(SimpleTestCase):
         )
         self.assertEqual(
             repr(func_index),
-            "<Index: expressions=(Lower(F(title)), F(subtitle)) "
+            "<Index: expressions=(Lower(F('title')), F('subtitle')) "
             "name='book_func_idx'>",
         )
         self.assertEqual(

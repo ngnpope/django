@@ -180,7 +180,7 @@ class CheckConstraintTests(TestCase):
         )
         self.assertEqual(
             repr(constraint),
-            "<CheckConstraint: check=(AND: ('price__gt', F(discounted_price))) "
+            "<CheckConstraint: check=(AND: ('price__gt', F('discounted_price'))) "
             "name='price_gt_discounted_price'>",
         )
 
@@ -575,7 +575,7 @@ class UniqueConstraintTests(TestCase):
         self.assertEqual(
             repr(constraint),
             "<UniqueConstraint: fields=('foo', 'bar') name='unique_fields' "
-            "condition=(AND: ('foo', F(bar)))>",
+            "condition=(AND: ('foo', F('bar')))>",
         )
 
     def test_repr_with_deferrable(self):
@@ -634,7 +634,7 @@ class UniqueConstraintTests(TestCase):
         )
         self.assertEqual(
             repr(constraint),
-            "<UniqueConstraint: expressions=(Lower(F(title)), F(author)) "
+            "<UniqueConstraint: expressions=(Lower(F('title')), F('author')) "
             "name='book_func_uq'>",
         )
 
@@ -647,7 +647,7 @@ class UniqueConstraintTests(TestCase):
         self.assertEqual(
             repr(constraint),
             (
-                "<UniqueConstraint: expressions=(F(baz__lower),) "
+                "<UniqueConstraint: expressions=(F('baz__lower'),) "
                 "name='unique_lower_baz' violation_error_message='BAZ'>"
             ),
         )
@@ -661,7 +661,7 @@ class UniqueConstraintTests(TestCase):
         self.assertEqual(
             repr(constraint),
             (
-                "<UniqueConstraint: expressions=(F(baz__lower),) "
+                "<UniqueConstraint: expressions=(F('baz__lower'),) "
                 "name='unique_lower_baz' violation_error_code='baz'>"
             ),
         )

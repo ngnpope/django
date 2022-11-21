@@ -338,7 +338,7 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         self.assertEqual(
             repr(constraint),
             "<ExclusionConstraint: index_type='GIST' expressions=["
-            "(F(datespan), '&&'), (F(room), '=')] name='exclude_overlapping'>",
+            "(F('datespan'), '&&'), (F('room'), '=')] name='exclude_overlapping'>",
         )
         constraint = ExclusionConstraint(
             name="exclude_overlapping",
@@ -349,7 +349,7 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         self.assertEqual(
             repr(constraint),
             "<ExclusionConstraint: index_type='SPGiST' expressions=["
-            "(F(datespan), '-|-')] name='exclude_overlapping' "
+            "(F('datespan'), '-|-')] name='exclude_overlapping' "
             "condition=(AND: ('cancelled', False))>",
         )
         constraint = ExclusionConstraint(
@@ -360,7 +360,7 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         self.assertEqual(
             repr(constraint),
             "<ExclusionConstraint: index_type='GIST' expressions=["
-            "(F(datespan), '-|-')] name='exclude_overlapping' "
+            "(F('datespan'), '-|-')] name='exclude_overlapping' "
             "deferrable=Deferrable.IMMEDIATE>",
         )
         constraint = ExclusionConstraint(
@@ -371,7 +371,7 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         self.assertEqual(
             repr(constraint),
             "<ExclusionConstraint: index_type='GIST' expressions=["
-            "(F(datespan), '-|-')] name='exclude_overlapping' "
+            "(F('datespan'), '-|-')] name='exclude_overlapping' "
             "include=('cancelled', 'room')>",
         )
         constraint = ExclusionConstraint(
@@ -383,7 +383,7 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         self.assertEqual(
             repr(constraint),
             "<ExclusionConstraint: index_type='GIST' expressions=["
-            "(OpClass(F(datespan), name=range_ops), '-|-')] "
+            "(OpClass(F('datespan'), name=range_ops), '-|-')] "
             "name='exclude_overlapping'>",
         )
         constraint = ExclusionConstraint(

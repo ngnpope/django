@@ -339,7 +339,7 @@ class BasicExpressionsTests(TestCase):
         # F expressions cannot be used to update attributes which are foreign
         # keys, or attributes which involve joins.
         test_gmbh = Company.objects.get(pk=self.gmbh.pk)
-        msg = 'F(ceo)": "Company.point_of_contact" must be a "Employee" instance.'
+        msg = 'F(\'ceo\')": "Company.point_of_contact" must be a "Employee" instance.'
         with self.assertRaisesMessage(ValueError, msg):
             test_gmbh.point_of_contact = F("ceo")
 
@@ -2347,85 +2347,85 @@ class ReprTests(SimpleTestCase):
             "<When: WHEN <Q: (AND: ('age__gte', 18))> THEN Value('legal')>",
         )
         self.assertEqual(repr(Col("alias", "field")), "Col('alias', field)")
-        self.assertEqual(repr(F("published")), "F(published)")
+        self.assertEqual(repr(F("published")), "F('published')")
         self.assertEqual(
-            repr(F("cost") + F("tax")), "<CombinedExpression: F(cost) + F(tax)>"
+            repr(F("cost") + F("tax")), "<CombinedExpression: F('cost') + F('tax')>"
         )
         self.assertEqual(
             repr(ExpressionWrapper(F("cost") + F("tax"), IntegerField())),
-            "ExpressionWrapper(F(cost) + F(tax))",
+            "ExpressionWrapper(F('cost') + F('tax'))",
         )
         self.assertEqual(
             repr(Func("published", function="TO_CHAR")),
-            "Func(F(published), function=TO_CHAR)",
+            "Func(F('published'), function=TO_CHAR)",
         )
         self.assertEqual(repr(OrderBy(Value(1))), "OrderBy(Value(1), descending=False)")
         self.assertEqual(repr(RawSQL("table.col", [])), "RawSQL(table.col, [])")
         self.assertEqual(
-            repr(Ref("sum_cost", Sum("cost"))), "Ref(sum_cost, Sum(F(cost)))"
+            repr(Ref("sum_cost", Sum("cost"))), "Ref(sum_cost, Sum(F('cost')))"
         )
         self.assertEqual(repr(Value(1)), "Value(1)")
         self.assertEqual(
             repr(ExpressionList(F("col"), F("anothercol"))),
-            "ExpressionList(F(col), F(anothercol))",
+            "ExpressionList(F('col'), F('anothercol'))",
         )
         self.assertEqual(
             repr(ExpressionList(OrderBy(F("col"), descending=False))),
-            "ExpressionList(OrderBy(F(col), descending=False))",
+            "ExpressionList(OrderBy(F('col'), descending=False))",
         )
 
     def test_functions(self):
-        self.assertEqual(repr(Coalesce("a", "b")), "Coalesce(F(a), F(b))")
-        self.assertEqual(repr(Concat("a", "b")), "Concat(ConcatPair(F(a), F(b)))")
-        self.assertEqual(repr(Length("a")), "Length(F(a))")
-        self.assertEqual(repr(Lower("a")), "Lower(F(a))")
-        self.assertEqual(repr(Substr("a", 1, 3)), "Substr(F(a), Value(1), Value(3))")
-        self.assertEqual(repr(Upper("a")), "Upper(F(a))")
+        self.assertEqual(repr(Coalesce("a", "b")), "Coalesce(F('a'), F('b'))")
+        self.assertEqual(repr(Concat("a", "b")), "Concat(ConcatPair(F('a'), F('b')))")
+        self.assertEqual(repr(Length("a")), "Length(F('a'))")
+        self.assertEqual(repr(Lower("a")), "Lower(F('a'))")
+        self.assertEqual(repr(Substr("a", 1, 3)), "Substr(F('a'), Value(1), Value(3))")
+        self.assertEqual(repr(Upper("a")), "Upper(F('a'))")
 
     def test_aggregates(self):
-        self.assertEqual(repr(Avg("a")), "Avg(F(a))")
-        self.assertEqual(repr(Count("a")), "Count(F(a))")
+        self.assertEqual(repr(Avg("a")), "Avg(F('a'))")
+        self.assertEqual(repr(Count("a")), "Count(F('a'))")
         self.assertEqual(repr(Count("*")), "Count('*')")
-        self.assertEqual(repr(Max("a")), "Max(F(a))")
-        self.assertEqual(repr(Min("a")), "Min(F(a))")
-        self.assertEqual(repr(StdDev("a")), "StdDev(F(a), sample=False)")
-        self.assertEqual(repr(Sum("a")), "Sum(F(a))")
+        self.assertEqual(repr(Max("a")), "Max(F('a'))")
+        self.assertEqual(repr(Min("a")), "Min(F('a'))")
+        self.assertEqual(repr(StdDev("a")), "StdDev(F('a'), sample=False)")
+        self.assertEqual(repr(Sum("a")), "Sum(F('a'))")
         self.assertEqual(
-            repr(Variance("a", sample=True)), "Variance(F(a), sample=True)"
+            repr(Variance("a", sample=True)), "Variance(F('a'), sample=True)"
         )
 
     def test_distinct_aggregates(self):
-        self.assertEqual(repr(Count("a", distinct=True)), "Count(F(a), distinct=True)")
+        self.assertEqual(repr(Count("a", distinct=True)), "Count(F('a'), distinct=True)")
         self.assertEqual(repr(Count("*", distinct=True)), "Count('*', distinct=True)")
 
     def test_filtered_aggregates(self):
         filter = Q(a=1)
         self.assertEqual(
-            repr(Avg("a", filter=filter)), "Avg(F(a), filter=(AND: ('a', 1)))"
+            repr(Avg("a", filter=filter)), "Avg(F('a'), filter=(AND: ('a', 1)))"
         )
         self.assertEqual(
-            repr(Count("a", filter=filter)), "Count(F(a), filter=(AND: ('a', 1)))"
+            repr(Count("a", filter=filter)), "Count(F('a'), filter=(AND: ('a', 1)))"
         )
         self.assertEqual(
-            repr(Max("a", filter=filter)), "Max(F(a), filter=(AND: ('a', 1)))"
+            repr(Max("a", filter=filter)), "Max(F('a'), filter=(AND: ('a', 1)))"
         )
         self.assertEqual(
-            repr(Min("a", filter=filter)), "Min(F(a), filter=(AND: ('a', 1)))"
+            repr(Min("a", filter=filter)), "Min(F('a'), filter=(AND: ('a', 1)))"
         )
         self.assertEqual(
             repr(StdDev("a", filter=filter)),
-            "StdDev(F(a), filter=(AND: ('a', 1)), sample=False)",
+            "StdDev(F('a'), filter=(AND: ('a', 1)), sample=False)",
         )
         self.assertEqual(
-            repr(Sum("a", filter=filter)), "Sum(F(a), filter=(AND: ('a', 1)))"
+            repr(Sum("a", filter=filter)), "Sum(F('a'), filter=(AND: ('a', 1)))"
         )
         self.assertEqual(
             repr(Variance("a", sample=True, filter=filter)),
-            "Variance(F(a), filter=(AND: ('a', 1)), sample=True)",
+            "Variance(F('a'), filter=(AND: ('a', 1)), sample=True)",
         )
         self.assertEqual(
             repr(Count("a", filter=filter, distinct=True)),
-            "Count(F(a), distinct=True, filter=(AND: ('a', 1)))",
+            "Count(F('a'), distinct=True, filter=(AND: ('a', 1)))",
         )
 
 
