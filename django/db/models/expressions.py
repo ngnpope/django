@@ -1173,9 +1173,12 @@ class Col(Expression):
         self.alias, self.target = alias, target
 
     def __repr__(self):
-        alias, target = self.alias, self.target
-        identifiers = (alias, str(target)) if alias else (str(target),)
-        return "{}({})".format(self.__class__.__name__, ", ".join(identifiers))
+        # TODO: Include output_field if explicitly passed?
+        # FIXME: Check this is correct... Probably still want to pass enpty alias.
+        if self.alias:
+            return f"{self.__class__.__name__}({self.alias!r}, {self.target!s})"
+        else:
+            return f"{self.__class__.__name__}({self.target!s})"
 
     def as_sql(self, compiler, connection):
         alias, column = self.alias, self.target.column

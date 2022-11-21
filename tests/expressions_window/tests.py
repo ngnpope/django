@@ -1670,8 +1670,8 @@ class WindowFunctionTests(TestCase):
         """Window expressions can't be used in an UPDATE statement."""
         msg = (
             "Window expressions are not allowed in this query (salary=<Window: "
-            "Max(Col(expressions_window_employee, expressions_window.Employee.salary)) "
-            "OVER (PARTITION BY Col(expressions_window_employee, "
+            "Max(Col('expressions_window_employee', expressions_window.Employee.salary)) "
+            "OVER (PARTITION BY Col('expressions_window_employee', "
             "expressions_window.Employee.department))>)."
         )
         with self.assertRaisesMessage(FieldError, msg):

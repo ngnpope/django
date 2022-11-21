@@ -189,7 +189,7 @@ class AdvancedTests(TestCase):
         qs = DataPoint.objects.annotate(max=Max("value"))
         msg = (
             "Aggregate functions are not allowed in this query "
-            "(another_value=Max(Col(update_datapoint, update.DataPoint.value)))."
+            "(another_value=Max(Col('update_datapoint', update.DataPoint.value)))."
         )
         with self.assertRaisesMessage(FieldError, msg):
             qs.update(another_value=F("max"))
@@ -228,7 +228,7 @@ class AdvancedTests(TestCase):
     def test_update_ordered_by_m2m_aggregation_annotation(self):
         msg = (
             "Cannot update when ordering by an aggregate: "
-            "Count(Col(update_bar_m2m_foo, update.Bar_m2m_foo.foo))"
+            "Count(Col('update_bar_m2m_foo', update.Bar_m2m_foo.foo))"
         )
         with self.assertRaisesMessage(FieldError, msg):
             Bar.objects.annotate(m2m_count=Count("m2m_foo")).order_by(

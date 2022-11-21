@@ -363,7 +363,7 @@ class BasicExpressionsTests(TestCase):
         )
         acme.num_employees = F("num_employees") + 16
         msg = (
-            'Failed to insert expression "Col(expressions_company, '
+            'Failed to insert expression "Col(\'expressions_company\', '
             'expressions.Company.num_employees) + Value(16)" on '
             "expressions.Company.num_employees. F() expressions can only be "
             "used to update, not to insert."
@@ -374,7 +374,7 @@ class BasicExpressionsTests(TestCase):
         acme.num_employees = 12
         acme.name = Lower(F("name"))
         msg = (
-            'Failed to insert expression "Lower(Col(expressions_company, '
+            'Failed to insert expression "Lower(Col(\'expressions_company\', '
             'expressions.Company.name))" on expressions.Company.name. F() '
             "expressions can only be used to update, not to insert."
         )
@@ -2346,7 +2346,7 @@ class ReprTests(SimpleTestCase):
             repr(When(Q(age__gte=18), then=Value("legal"))),
             "<When: WHEN <Q: (AND: ('age__gte', 18))> THEN Value('legal')>",
         )
-        self.assertEqual(repr(Col("alias", "field")), "Col(alias, field)")
+        self.assertEqual(repr(Col("alias", "field")), "Col('alias', field)")
         self.assertEqual(repr(F("published")), "F(published)")
         self.assertEqual(
             repr(F("cost") + F("tax")), "<CombinedExpression: F(cost) + F(tax)>"
