@@ -1332,7 +1332,8 @@ class ExpressionWrapper(SQLiteNumericMixin, Expression):
         return compiler.compile(self.expression)
 
     def __repr__(self):
-        return "{}({})".format(self.__class__.__name__, self.expression)
+        # TODO: Include output_field if explicitly passed?
+        return f"{self.__class__.__name__}({self.expression!r})"
 
     @property
     def allowed_default(self):
