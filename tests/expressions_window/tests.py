@@ -1683,7 +1683,7 @@ class WindowFunctionTests(TestCase):
         """Window expressions can't be used in an INSERT statement."""
         msg = (
             "Window expressions are not allowed in this query (salary=<Window: "
-            "Sum(Value(10000), order_by=OrderBy(F('pk'), descending=False)) OVER ()"
+            "Sum(Value(10000), order_by=OrderBy(F('pk'))) OVER ()"
         )
         with self.assertRaisesMessage(FieldError, msg):
             Employee.objects.create(
@@ -1934,8 +1934,7 @@ class NonQueryWindowTests(SimpleTestCase):
         )
         self.assertEqual(
             repr(Window(expression=Avg("salary"), order_by=F("department").asc())),
-            "<Window: Avg(F('salary')) OVER (OrderByList(OrderBy(F('department'), "
-            "descending=False)))>",
+            "<Window: Avg(F('salary')) OVER (OrderByList(OrderBy(F('department'))))>",
         )
 
     def test_window_frame_repr(self):

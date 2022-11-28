@@ -1671,9 +1671,14 @@ class OrderBy(Expression):
         self.expression = expression
 
     def __repr__(self):
-        return "{}({}, descending={})".format(
-            self.__class__.__name__, self.expression, self.descending
-        )
+        extra = ""
+        if self.descending is not False:
+            extra += f", descending={self.descending!r}"
+        if self.nulls_first is not None:
+            extra += f", nulls_first={self.nulls_first!r}"
+        if self.nulls_last is not None:
+            extra += f", nulls_last={self.nulls_last!r}"
+        return f"{self.__class__.__name__}({self.expression!r}{extra})"
 
     def set_source_expressions(self, exprs):
         self.expression = exprs[0]
