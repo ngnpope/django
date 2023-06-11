@@ -32,7 +32,6 @@ from .base import (
     render_value_in_context,
     token_kwargs,
 )
-from .context import Context
 from .defaultfilters import date
 from .library import Library
 from .smartif import IfParser, Literal
@@ -490,6 +489,8 @@ class URLNode(Node):
 
 
 class VerbatimNode(Node):
+    child_nodelists = ()
+
     def __init__(self, content):
         self.content = content
 
@@ -1416,9 +1417,7 @@ def verbatim(parser, token):
             ...
         {% endverbatim myblock %}
     """
-    nodelist = parser.parse(("endverbatim",))
-    parser.delete_first_token()
-    return VerbatimNode(nodelist.render(Context()))
+    return VerbatimNode(parser.skip_past(f"end{token.contents}", accumulate=True))
 
 
 @register.tag

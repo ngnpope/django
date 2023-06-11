@@ -53,7 +53,7 @@ times with multiple contexts)
 import inspect
 import logging
 import re
-from enum import Enum
+from enum import IntEnum
 
 from django.template.context import BaseContext
 from django.utils.formats import localize
@@ -83,15 +83,17 @@ SINGLE_BRACE_END = "}"
 # (e.g. strings)
 UNKNOWN_SOURCE = "<unknown source>"
 
-# Match BLOCK_TAG_*, VARIABLE_TAG_*, and COMMENT_TAG_* tags and capture the
+# Match VARIABLE_TAG_*, BLOCK_TAG_*, and COMMENT_TAG_* tags and capture the
 # entire tag, including start/end delimiters. Using re.compile() is faster
-# than instantiating SimpleLazyObject with _lazy_re_compile().
-tag_re = re.compile(r"({%.*?%}|{{.*?}}|{#.*?#})")
+# than instantiating SimpleLazyObject with _lazy_re_compile(). The order of
+# capture groups is important so that re.Match.lastindex will align with the
+# values of TokenType.
+tag_re = re.compile(r"({{.*?}})|({%.*?%})|({#.*?#})")
 
 logger = logging.getLogger("django.template")
 
 
-class TokenType(Enum):
+class TokenType(IntEnum):
     TEXT = 0
     VAR = 1
     BLOCK = 2
@@ -288,7 +290,9 @@ def linebreak_iter(template_source):
 
 
 class Token:
-    def __init__(self, token_type, contents, position=None, lineno=None):
+    __slots__ = ("token_type", "contents", "lineno", "position", "original")
+
+    def __init__(self, token_type, contents, position=None, lineno=None, original=None):
         """
         A token representing a string from the template.
 
@@ -311,6 +315,7 @@ class Token:
         self.contents = contents
         self.lineno = lineno
         self.position = position
+        self.original = original
 
     def __repr__(self):
         token_name = self.token_type.name.capitalize()
@@ -338,13 +343,11 @@ class Token:
 class Lexer:
     def __init__(self, template_string):
         self.template_string = template_string
-        self.verbatim = False
 
     def __repr__(self):
-        return '<%s template_string="%s...", verbatim=%s>' % (
+        return '<%s template_string="%s...">' % (
             self.__class__.__qualname__,
             self.template_string[:20].replace("\n", ""),
-            self.verbatim,
         )
 
     def split(self):
@@ -353,56 +356,34 @@ class Lexer:
         None for the position of the token, but can be overridden to return the
         start and end position in the source.
         """
-        for token_string in tag_re.split(self.template_string):
-            yield token_string, None
+        TEXT = TokenType.TEXT
+        lookup = TokenType._value2member_map_
+        string = self.template_string
+        last = 0
+        for match in tag_re.finditer(string):
+            start, end = match.span()
+            if last != start:
+                yield TEXT, string[last:start], None
+            yield lookup[match.lastindex], match[0], None
+            last = end
+        if chunk := string[last:]:
+            yield TEXT, chunk, None
 
     def tokenize(self):
         """
         Return a list of tokens from a given template_string.
         """
-        in_tag = False
         lineno = 1
         result = []
-        for token_string, position in self.split():
-            if token_string:
-                result.append(self.create_token(token_string, position, lineno, in_tag))
-                lineno += token_string.count("\n")
-            in_tag = not in_tag
+        for token_type, token_string, position in self.split():
+            assert token_string
+            if token_type == 0:  # TokenType.TEXT
+                contents = token_string
+            else:
+                contents = token_string[2:-2].strip()
+            result.append(Token(token_type, contents, position, lineno, token_string))
+            lineno += token_string.count("\n")
         return result
-
-    def create_token(self, token_string, position, lineno, in_tag):
-        """
-        Convert the given token string into a new Token object and return it.
-        If in_tag is True, we are processing something that matched a tag,
-        otherwise it should be treated as a literal string.
-        """
-        if in_tag:
-            # The [0:2] and [2:-2] ranges below strip off *_TAG_START and
-            # *_TAG_END. The 2's are hard-coded for performance. Using
-            # len(BLOCK_TAG_START) would permit BLOCK_TAG_START to be
-            # different, but it's not likely that the TAG_START values will
-            # change anytime soon.
-            token_start = token_string[0:2]
-            if token_start == BLOCK_TAG_START:
-                content = token_string[2:-2].strip()
-                if self.verbatim:
-                    # Then a verbatim block is being processed.
-                    if content != self.verbatim:
-                        return Token(TokenType.TEXT, token_string, position, lineno)
-                    # Otherwise, the current verbatim block is ending.
-                    self.verbatim = False
-                elif content[:9] in ("verbatim", "verbatim "):
-                    # Then a verbatim block is starting.
-                    self.verbatim = "end%s" % content
-                return Token(TokenType.BLOCK, content, position, lineno)
-            if not self.verbatim:
-                content = token_string[2:-2].strip()
-                if token_start == VARIABLE_TAG_START:
-                    return Token(TokenType.VAR, content, position, lineno)
-                # BLOCK_TAG_START was handled above.
-                assert token_start == COMMENT_TAG_START
-                return Token(TokenType.COMMENT, content, position, lineno)
-        return Token(TokenType.TEXT, token_string, position, lineno)
 
 
 class DebugLexer(Lexer):
@@ -412,14 +393,18 @@ class DebugLexer(Lexer):
         start and end position in the source. This is slower than the default
         lexer so only use it when debug is True.
         """
+        TEXT = TokenType.TEXT
+        lookup = TokenType._value2member_map_
         string = self.template_string
         last = 0
         for match in tag_re.finditer(string):
             start, end = match.span()
-            yield string[last:start], (last, start)
-            yield string[start:end], (start, end)
+            if last != start:
+                yield TEXT, string[last:start], (last, start)
+            yield lookup[match.lastindex], match[0], (start, end)
             last = end
-        yield string[last:], (last, len(string))
+        if chunk := string[last:]:
+            yield TEXT, chunk, (last, last + len(chunk))
 
 
 class Parser:
@@ -459,7 +444,7 @@ class Parser:
         while self.tokens:
             token = self.next_token()
             # Use the raw values here for TokenType.* for a tiny performance boost.
-            token_type = token.token_type.value
+            token_type = token.token_type
             if token_type == 0:  # TokenType.TEXT
                 self.extend_nodelist(nodelist, TextNode(token.contents), token)
             elif token_type == 1:  # TokenType.VAR
@@ -507,11 +492,14 @@ class Parser:
             self.unclosed_block_tag(parse_until)
         return nodelist
 
-    def skip_past(self, endtag):
+    def skip_past(self, endtag, *, accumulate=False):
+        text = ""
         while self.tokens:
             token = self.next_token()
-            if token.token_type == TokenType.BLOCK and token.contents == endtag:
-                return
+            if token.token_type == 2 and token.contents == endtag:  # TokenType.BLOCK
+                return text if accumulate else None
+            if accumulate:
+                text += token.original
         self.unclosed_block_tag([endtag])
 
     def extend_nodelist(self, nodelist, node, token):
