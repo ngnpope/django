@@ -53,6 +53,7 @@ times with multiple contexts)
 import inspect
 import logging
 import re
+from collections import deque
 from enum import IntEnum
 
 from django.template.context import BaseContext
@@ -186,9 +187,8 @@ class Template:
         else:
             lexer = Lexer(self.source)
 
-        tokens = lexer.tokenize()
         parser = Parser(
-            tokens,
+            lexer.tokenize(),
             self.engine.template_libraries,
             self.engine.template_builtins,
             self.origin,
@@ -374,16 +374,14 @@ class Lexer:
         Return a list of tokens from a given template_string.
         """
         lineno = 1
-        result = []
         for token_type, token_string, position in self.split():
             assert token_string
             if token_type == 0:  # TokenType.TEXT
                 contents = token_string
             else:
                 contents = token_string[2:-2].strip()
-            result.append(Token(token_type, contents, position, lineno, token_string))
+            yield Token(token_type, contents, position, lineno, token_string)
             lineno += token_string.count("\n")
-        return result
 
 
 class DebugLexer(Lexer):
@@ -411,7 +409,7 @@ class Parser:
     def __init__(self, tokens, libraries=None, builtins=None, origin=None):
         # Reverse the tokens so delete_first_token(), prepend_token(), and
         # next_token() can operate at the end of the list in constant time.
-        self.tokens = list(reversed(tokens))
+        self.tokens = deque(tokens)
         self.tags = {}
         self.filters = {}
         self.command_stack = []
@@ -427,7 +425,7 @@ class Parser:
         self.origin = origin
 
     def __repr__(self):
-        return "<%s tokens=%r>" % (self.__class__.__qualname__, self.tokens)
+        return "<%s tokens=%r>" % (self.__class__.__qualname__, list(self.tokens))
 
     def parse(self, parse_until=None):
         """
@@ -558,13 +556,13 @@ class Parser:
         raise self.error(token, msg)
 
     def next_token(self):
-        return self.tokens.pop()
+        return self.tokens.popleft()
 
     def prepend_token(self, token):
-        self.tokens.append(token)
+        self.tokens.appendleft(token)
 
     def delete_first_token(self):
-        del self.tokens[-1]
+        self.tokens.popleft()
 
     def add_library(self, lib):
         self.tags.update(lib.tags)
