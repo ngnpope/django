@@ -54,7 +54,7 @@ import inspect
 import logging
 import re
 from collections import deque
-from enum import IntEnum
+from enum import IntEnum, global_enum
 
 from django.template.context import BaseContext
 from django.utils.formats import localize
@@ -94,6 +94,7 @@ tag_re = re.compile(r"({{.*?}})|({%.*?%})|({#.*?#})")
 logger = logging.getLogger("django.template")
 
 
+@global_enum
 class TokenType(IntEnum):
     TEXT = 0
     VAR = 1
@@ -356,7 +357,6 @@ class Lexer:
         None for the position of the token, but can be overridden to return the
         start and end position in the source.
         """
-        TEXT = TokenType.TEXT
         lookup = TokenType._value2member_map_
         string = self.template_string
         last = 0
@@ -391,7 +391,6 @@ class DebugLexer(Lexer):
         start and end position in the source. This is slower than the default
         lexer so only use it when debug is True.
         """
-        TEXT = TokenType.TEXT
         lookup = TokenType._value2member_map_
         string = self.template_string
         last = 0
