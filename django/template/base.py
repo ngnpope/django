@@ -356,18 +356,16 @@ class Lexer:
         None for the position of the token, but can be overridden to return the
         start and end position in the source.
         """
-        TEXT = TokenType.TEXT
-        lookup = TokenType._value2member_map_
         string = self.template_string
         last = 0
         for match in tag_re.finditer(string):
-            start, end = match.span()
+            start = match.start()
             if last != start:
-                yield TEXT, string[last:start], None
-            yield lookup[match.lastindex], match[0], None
-            last = end
+                yield 0, string[last:start], None
+            yield match.lastindex, match[0], None
+            last = match.end()
         if chunk := string[last:]:
-            yield TEXT, chunk, None
+            yield 0, chunk, None
 
     def tokenize(self):
         """
@@ -375,7 +373,6 @@ class Lexer:
         """
         lineno = 1
         for token_type, token_string, position in self.split():
-            assert token_string
             if token_type == 0:  # TokenType.TEXT
                 contents = token_string
             else:
@@ -391,18 +388,16 @@ class DebugLexer(Lexer):
         start and end position in the source. This is slower than the default
         lexer so only use it when debug is True.
         """
-        TEXT = TokenType.TEXT
-        lookup = TokenType._value2member_map_
         string = self.template_string
         last = 0
         for match in tag_re.finditer(string):
             start, end = match.span()
             if last != start:
-                yield TEXT, string[last:start], (last, start)
-            yield lookup[match.lastindex], match[0], (start, end)
+                yield 0, string[last:start], (last, start)
+            yield match.lastindex, match[0], (start, end)
             last = end
         if chunk := string[last:]:
-            yield TEXT, chunk, (last, last + len(chunk))
+            yield 0, chunk, (last, last + len(chunk))
 
 
 class Parser:
