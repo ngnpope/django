@@ -13,6 +13,7 @@ from django.test.testcases import (
 from django.test.utils import (
     ignore_warnings,
     modify_settings,
+    override_connection_settings,
     override_settings,
     override_system_checks,
     tag,
@@ -32,6 +33,7 @@ __all__ = [
     "skipUnlessDBFeature",
     "ignore_warnings",
     "modify_settings",
+    "override_connection_settings",
     "override_settings",
     "override_system_checks",
     "tag",

@@ -1,10 +1,9 @@
-import operator
 import unittest
 from collections import namedtuple
 from contextlib import contextmanager
 
 from django.db import connection, models
-from django.test import TestCase
+from django.test import TestCase, override_connection_settings
 
 from ..models import Person
 
@@ -28,20 +27,6 @@ class ServerSideCursorsPostgres(TestCase):
             )
             cursors = cursor.fetchall()
         return [self.PostgresCursor._make(cursor) for cursor in cursors]
-
-    @contextmanager
-    def override_db_setting(self, **kwargs):
-        for setting in kwargs:
-            original_value = connection.settings_dict.get(setting)
-            if setting in connection.settings_dict:
-                self.addCleanup(
-                    operator.setitem, connection.settings_dict, setting, original_value
-                )
-            else:
-                self.addCleanup(operator.delitem, connection.settings_dict, setting)
-
-            connection.settings_dict[setting] = kwargs[setting]
-            yield
 
     def assertUsesCursor(self, queryset, num_expected=1):
         next(queryset)  # Open a server-side cursor
@@ -92,10 +77,10 @@ class ServerSideCursorsPostgres(TestCase):
         self.assertEqual(len(cursors), 0)
 
     def test_server_side_cursors_setting(self):
-        with self.override_db_setting(DISABLE_SERVER_SIDE_CURSORS=False):
+        with override_connection_settings(DISABLE_SERVER_SIDE_CURSORS=False):
             persons = Person.objects.iterator()
             self.assertUsesCursor(persons)
             del persons  # Close server-side cursor
 
-        with self.override_db_setting(DISABLE_SERVER_SIDE_CURSORS=True):
+        with override_connection_settings(DISABLE_SERVER_SIDE_CURSORS=True):
             self.assertNotUsesCursor(Person.objects.iterator())

@@ -6,6 +6,7 @@ from django.test import (
     SimpleTestCase,
     TestCase,
     TransactionTestCase,
+    override_connection_settings,
     skipUnlessDBFeature,
 )
 from django.test.utils import CaptureQueriesContext, override_settings
@@ -218,25 +219,13 @@ class ConnectionHealthChecksTests(SimpleTestCase):
         connection.close()
         self.addCleanup(connection.close)
 
-    def patch_settings_dict(self, conn_health_checks):
-        self.settings_dict_patcher = patch.dict(
-            connection.settings_dict,
-            {
-                **connection.settings_dict,
-                "CONN_MAX_AGE": None,
-                "CONN_HEALTH_CHECKS": conn_health_checks,
-            },
-        )
-        self.settings_dict_patcher.start()
-        self.addCleanup(self.settings_dict_patcher.stop)
-
     def run_query(self):
         with connection.cursor() as cursor:
             cursor.execute("SELECT 42" + connection.features.bare_select_suffix)
 
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
+    @override_connection_settings(CONN_HEALTH_CHECKS=True, CONN_MAX_AGE=None)
     def test_health_checks_enabled(self):
-        self.patch_settings_dict(conn_health_checks=True)
         self.assertIsNone(connection.connection)
         # Newly created connections are considered healthy without performing
         # the health check.
@@ -273,8 +262,8 @@ class ConnectionHealthChecksTests(SimpleTestCase):
         self.assertIs(new_connection, connection.connection)
 
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
+    @override_connection_settings(CONN_HEALTH_CHECKS=True, CONN_MAX_AGE=None)
     def test_health_checks_enabled_errors_occurred(self):
-        self.patch_settings_dict(conn_health_checks=True)
         self.assertIsNone(connection.connection)
         # Newly created connections are considered healthy without performing
         # the health check.
@@ -295,8 +284,8 @@ class ConnectionHealthChecksTests(SimpleTestCase):
             self.run_query()
 
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
+    @override_connection_settings(CONN_HEALTH_CHECKS=False, CONN_MAX_AGE=None)
     def test_health_checks_disabled(self):
-        self.patch_settings_dict(conn_health_checks=False)
         self.assertIsNone(connection.connection)
         # Newly created connections are considered healthy without performing
         # the health check.
@@ -319,8 +308,8 @@ class ConnectionHealthChecksTests(SimpleTestCase):
             self.assertIs(old_connection, connection.connection)
 
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
+    @override_connection_settings(CONN_HEALTH_CHECKS=True, CONN_MAX_AGE=None)
     def test_set_autocommit_health_checks_enabled(self):
-        self.patch_settings_dict(conn_health_checks=True)
         self.assertIsNone(connection.connection)
         # Newly created connections are considered healthy without performing
         # the health check.

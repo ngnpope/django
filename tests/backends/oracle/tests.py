@@ -3,7 +3,7 @@ from unittest import mock
 
 from django.db import DatabaseError, NotSupportedError, connection
 from django.db.models import BooleanField
-from django.test import TestCase, TransactionTestCase
+from django.test import TestCase, TransactionTestCase, override_connection_settings
 
 from ..models import Square, VeryLongModelNameZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
 
@@ -102,20 +102,16 @@ class TransactionalTests(TransactionTestCase):
             with connection.cursor() as cursor:
                 cursor.execute('DROP TRIGGER "TRG_NO_DATA_FOUND"')
 
+    @override_connection_settings(PASSWORD="p@ssword")
     def test_password_with_at_sign(self):
         from django.db.backends.oracle.base import Database
 
-        old_password = connection.settings_dict["PASSWORD"]
-        connection.settings_dict["PASSWORD"] = "p@ssword"
-        try:
-            self.assertIn(
-                '/"p@ssword"@',
-                connection.client.connect_string(connection.settings_dict),
-            )
-            with self.assertRaises(Database.DatabaseError) as context:
-                connection.connect()
-            # Database exception: "ORA-01017: invalid username/password" is
-            # expected.
-            self.assertIn("ORA-01017", context.exception.args[0].message)
-        finally:
-            connection.settings_dict["PASSWORD"] = old_password
+        self.assertIn(
+            '/"p@ssword"@',
+            connection.client.connect_string(connection.settings_dict),
+        )
+        with self.assertRaises(Database.DatabaseError) as context:
+            connection.connect()
+        # Database exception: "ORA-01017: invalid username/password" is
+        # expected.
+        self.assertIn("ORA-01017", context.exception.args[0].message)

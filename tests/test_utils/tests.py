@@ -42,6 +42,7 @@ from django.test.utils import (
     CaptureQueriesContext,
     TestContextDecorator,
     isolate_apps,
+    override_connection_settings,
     override_settings,
     setup_test_environment,
 )
@@ -1859,6 +1860,17 @@ class OverrideSettingsTests(SimpleTestCase):
         with self.settings(STATICFILES_DIRS=[test_path]):
             finder = get_finder("django.contrib.staticfiles.finders.FileSystemFinder")
             self.assertIn(expected_location, finder.locations)
+
+
+class OverrideConnectionSettingsTests(SimpleTestCase):
+    def test_override_connection_settings(self):
+        self.assertNotIn("A", connection.settings_dict)
+        self.assertNotIn("B", connection.settings_dict)
+        with override_connection_settings(A=1, B=2):
+            self.assertEqual(connection.settings_dict["A"], 1)
+            self.assertEqual(connection.settings_dict["B"], 2)
+        self.assertNotIn("A", connection.settings_dict)
+        self.assertNotIn("B", connection.settings_dict)
 
 
 @skipUnlessDBFeature("supports_transactions")

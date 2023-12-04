@@ -1,12 +1,13 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.core.handlers.wsgi import WSGIHandler, WSGIRequest, get_script_name
 from django.core.signals import request_finished, request_started
-from django.db import close_old_connections, connection
+from django.db import close_old_connections
 from django.test import (
     AsyncRequestFactory,
     RequestFactory,
     SimpleTestCase,
     TransactionTestCase,
+    override_connection_settings,
     override_settings,
 )
 
@@ -103,43 +104,27 @@ class TransactionsPerRequestTests(TransactionTestCase):
         self.assertContains(response, "False")
 
     def test_auto_transaction(self):
-        old_atomic_requests = connection.settings_dict["ATOMIC_REQUESTS"]
-        try:
-            connection.settings_dict["ATOMIC_REQUESTS"] = True
+        with override_connection_settings(ATOMIC_REQUESTS=True):
             response = self.client.get("/in_transaction/")
-        finally:
-            connection.settings_dict["ATOMIC_REQUESTS"] = old_atomic_requests
         self.assertContains(response, "True")
 
     async def test_auto_transaction_async_view(self):
-        old_atomic_requests = connection.settings_dict["ATOMIC_REQUESTS"]
-        try:
-            connection.settings_dict["ATOMIC_REQUESTS"] = True
-            msg = "You cannot use ATOMIC_REQUESTS with async views."
-            with self.assertRaisesMessage(RuntimeError, msg):
-                await self.async_client.get("/async_regular/")
-        finally:
-            connection.settings_dict["ATOMIC_REQUESTS"] = old_atomic_requests
+        msg = "You cannot use ATOMIC_REQUESTS with async views."
+        with (
+            override_connection_settings(ATOMIC_REQUESTS=True),
+            self.assertRaisesMessage(RuntimeError, msg),
+        ):
+            await self.async_client.get("/async_regular/")
 
     def test_no_auto_transaction(self):
-        old_atomic_requests = connection.settings_dict["ATOMIC_REQUESTS"]
-        try:
-            connection.settings_dict["ATOMIC_REQUESTS"] = True
+        with override_connection_settings(ATOMIC_REQUESTS=True):
             response = self.client.get("/not_in_transaction/")
-        finally:
-            connection.settings_dict["ATOMIC_REQUESTS"] = old_atomic_requests
         self.assertContains(response, "False")
-        try:
-            connection.settings_dict["ATOMIC_REQUESTS"] = True
+        with override_connection_settings(ATOMIC_REQUESTS=True):
             response = self.client.get("/not_in_transaction_using_none/")
-        finally:
-            connection.settings_dict["ATOMIC_REQUESTS"] = old_atomic_requests
         self.assertContains(response, "False")
-        try:
-            connection.settings_dict["ATOMIC_REQUESTS"] = True
+        with override_connection_settings(ATOMIC_REQUESTS=True):
             response = self.client.get("/not_in_transaction_using_text/")
-        finally:
-            connection.settings_dict["ATOMIC_REQUESTS"] = old_atomic_requests
         # The non_atomic_requests decorator is used for an incorrect table.
         self.assertContains(response, "True")
 

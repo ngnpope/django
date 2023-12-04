@@ -22,6 +22,7 @@ from django.db.models.sql.constants import CURSOR
 from django.test import (
     TestCase,
     TransactionTestCase,
+    override_connection_settings,
     override_settings,
     skipIfDBFeature,
     skipUnlessDBFeature,
@@ -406,9 +407,8 @@ class BackendTestCase(TransactionTestCase):
                 list(cursor.fetchall()), [("Mary", "Agnelline"), ("Peter", "Parker")]
             )
 
+    @override_connection_settings(PASSWORD="françois")
     def test_unicode_password(self):
-        old_password = connection.settings_dict["PASSWORD"]
-        connection.settings_dict["PASSWORD"] = "françois"
         try:
             with connection.cursor():
                 pass
@@ -417,8 +417,6 @@ class BackendTestCase(TransactionTestCase):
             pass
         except Exception as e:
             self.fail("Unexpected error raised with Unicode password: %s" % e)
-        finally:
-            connection.settings_dict["PASSWORD"] = old_password
 
     def test_database_operations_helper_class(self):
         # Ticket #13630

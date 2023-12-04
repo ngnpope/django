@@ -12,7 +12,7 @@ from django.db import (
     connections,
 )
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_connection_settings, override_settings
 
 try:
     from django.db.backends.postgresql.psycopg_any import errors, is_psycopg3
@@ -51,20 +51,18 @@ class Tests(TestCase):
             "Django was unable to create a connection to the 'postgres' "
             "database and will use the first PostgreSQL database instead."
         )
-        with self.assertWarnsMessage(RuntimeWarning, msg):
-            with mock.patch(
+        with (
+            self.assertWarnsMessage(RuntimeWarning, msg),
+            mock.patch(
                 "django.db.backends.base.base.BaseDatabaseWrapper.connect",
                 side_effect=mocked_connect,
                 autospec=True,
-            ):
-                with mock.patch.object(
-                    connection,
-                    "settings_dict",
-                    {**connection.settings_dict, "NAME": "postgres"},
-                ):
-                    with connection._nodb_cursor() as cursor:
-                        self.assertIs(cursor.closed, False)
-                        self.assertIsNotNone(cursor.db.connection)
+            ),
+            override_connection_settings(NAME="postgres"),
+            connection._nodb_cursor() as cursor,
+        ):
+            self.assertIs(cursor.closed, False)
+            self.assertIsNotNone(cursor.db.connection)
         self.assertIs(cursor.closed, True)
         self.assertIsNone(cursor.db.connection)
         self.assertIsNotNone(cursor.db.settings_dict["NAME"])
@@ -72,15 +70,17 @@ class Tests(TestCase):
             cursor.db.settings_dict["NAME"], connections["other"].settings_dict["NAME"]
         )
         # Cursor is yielded only for the first PostgreSQL database.
-        with self.assertWarnsMessage(RuntimeWarning, msg):
-            with mock.patch(
+        with (
+            self.assertWarnsMessage(RuntimeWarning, msg),
+            mock.patch(
                 "django.db.backends.base.base.BaseDatabaseWrapper.connect",
                 side_effect=mocked_connect,
                 autospec=True,
-            ):
-                with connection._nodb_cursor() as cursor:
-                    self.assertIs(cursor.closed, False)
-                    self.assertIsNotNone(cursor.db.connection)
+            ),
+            connection._nodb_cursor() as cursor,
+        ):
+            self.assertIs(cursor.closed, False)
+            self.assertIsNotNone(cursor.db.connection)
 
     def test_nodb_cursor_raises_postgres_authentication_failure(self):
         """

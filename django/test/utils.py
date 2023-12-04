@@ -1,6 +1,7 @@
 import collections
 import gc
 import logging
+import operator
 import os
 import re
 import sys
@@ -619,6 +620,32 @@ class override_system_checks(TestContextDecorator):
     def disable(self):
         self.registry.registered_checks = self.old_checks
         self.registry.deployment_checks = self.old_deployment_checks
+
+
+class override_connection_settings(TestContextDecorator):
+    # TODO: Support multiple connections?
+    # TODO: Support returning a clone?
+
+    def __init__(self, **kwargs):
+        self.cleanups = []
+        self.options = kwargs
+        super().__init__()
+
+    def enable(self):
+        connection = connections[DEFAULT_DB_ALIAS]
+        settings = connection.settings_dict
+        for name, value in self.options.items():
+            if name in settings:
+                cleanup = (operator.setitem, settings, name, settings[name])
+            else:
+                cleanup = (operator.delitem, settings, name)
+            self.cleanups.insert(0, cleanup)
+            settings[name] = value
+        return connection
+
+    def disable(self):
+        for operation, *args in self.cleanups:
+            operation(*args)
 
 
 def compare_xml(want, got):
