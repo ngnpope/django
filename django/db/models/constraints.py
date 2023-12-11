@@ -134,22 +134,16 @@ class CheckConstraint(BaseConstraint):
             pass
 
     def __repr__(self):
-        return "<%s: check=%s name=%s%s%s>" % (
-            self.__class__.__qualname__,
-            self.check,
-            repr(self.name),
-            (
-                ""
-                if self.violation_error_code is None
-                else " violation_error_code=%r" % self.violation_error_code
-            ),
-            (
-                ""
-                if self.violation_error_message is None
-                or self.violation_error_message == self.default_violation_error_message
-                else " violation_error_message=%r" % self.violation_error_message
-            ),
-        )
+        args = [repr(self.check), repr(self.name)]
+        if self.violation_error_code is not None:
+            args.append(f"violation_error_code={self.violation_error_code!r}")
+        if (
+            self.violation_error_message is not None
+            and self.violation_error_message != self.default_violation_error_message
+        ):
+            args.append(f"violation_error_message={self.violation_error_message!r}")
+        args = ", ".join(args)
+        return f"{self.__class__.__qualname__}({args})"
 
     def __eq__(self, other):
         if isinstance(other, CheckConstraint):

@@ -180,8 +180,8 @@ class CheckConstraintTests(TestCase):
         )
         self.assertEqual(
             repr(constraint),
-            "<CheckConstraint: check=(AND: ('price__gt', F('discounted_price'))) "
-            "name='price_gt_discounted_price'>",
+            "CheckConstraint(<Q: (AND: ('price__gt', F('discounted_price')))>, "
+            "'price_gt_discounted_price')",
         )
 
     def test_repr_with_violation_error_message(self):
@@ -192,8 +192,8 @@ class CheckConstraintTests(TestCase):
         )
         self.assertEqual(
             repr(constraint),
-            "<CheckConstraint: check=(AND: ('price__lt', 1)) name='price_lt_one' "
-            "violation_error_message='More than 1'>",
+            "CheckConstraint(<Q: (AND: ('price__lt', 1))>, 'price_lt_one', "
+            "violation_error_message='More than 1')",
         )
 
     def test_repr_with_violation_error_code(self):
@@ -204,8 +204,8 @@ class CheckConstraintTests(TestCase):
         )
         self.assertEqual(
             repr(constraint),
-            "<CheckConstraint: check=(AND: ('price__lt', 1)) name='price_lt_one' "
-            "violation_error_code='more_than_one'>",
+            "CheckConstraint(<Q: (AND: ('price__lt', 1))>, 'price_lt_one', "
+            "violation_error_code='more_than_one')",
         )
 
     def test_invalid_check_types(self):
