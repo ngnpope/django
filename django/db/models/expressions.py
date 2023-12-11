@@ -1215,7 +1215,7 @@ class Ref(Expression):
         self.refs, self.source = refs, source
 
     def __repr__(self):
-        return "{}({}, {})".format(self.__class__.__name__, self.refs, self.source)
+        return f"{self.__class__.__name__}({self.refs!r}, {self.source!r})"
 
     def get_source_expressions(self):
         return [self.source]
