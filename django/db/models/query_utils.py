@@ -54,6 +54,23 @@ class Q(tree.Node):
             negated=_negated,
         )
 
+    def __repr__(self):
+        if self.connector == self.default:
+            args = []
+            kwargs = []
+            for child in self.children:
+                if isinstance(child, tuple):
+                    name, value = child
+                    args.append(f"{name}={value!r}")
+                else:
+                    args.append(repr(child))
+            args = ", ".join(args)
+            return f"~Q({args})" if self.negated else f"Q({args})"
+        else:
+            mapping = {self.AND: "&", self.OR: "|", self.XOR: "^"}
+            expr = mapping[self.connector].join([f"Q({x})" for x in self.children])
+            return f"~({expr})" if self.negated else expr
+
     def _combine(self, other, conn):
         if getattr(other, "conditional", False) is False:
             raise TypeError(other)
