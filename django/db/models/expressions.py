@@ -1121,7 +1121,8 @@ class RawSQL(Expression):
         super().__init__(output_field=output_field)
 
     def __repr__(self):
-        return "{}({}, {})".format(self.__class__.__name__, self.sql, self.params)
+        # TODO: Include output_field if explicitly passed?
+        return f"{self.__class__.__name__}({self.sql!r}, {self.params!r})"
 
     def as_sql(self, compiler, connection):
         return "(%s)" % self.sql, self.params
