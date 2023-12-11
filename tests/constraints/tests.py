@@ -563,7 +563,7 @@ class UniqueConstraintTests(TestCase):
         constraint = models.UniqueConstraint(fields=fields, name=name)
         self.assertEqual(
             repr(constraint),
-            "<UniqueConstraint: fields=('foo', 'bar') name='unique_fields'>",
+            "UniqueConstraint(fields=('foo', 'bar'), name='unique_fields')",
         )
 
     def test_repr_with_condition(self):
@@ -574,8 +574,8 @@ class UniqueConstraintTests(TestCase):
         )
         self.assertEqual(
             repr(constraint),
-            "<UniqueConstraint: fields=('foo', 'bar') name='unique_fields' "
-            "condition=(AND: ('foo', F('bar')))>",
+            "UniqueConstraint(fields=('foo', 'bar'), name='unique_fields', "
+            "condition=<Q: (AND: ('foo', F('bar')))>)",
         )
 
     def test_repr_with_deferrable(self):
@@ -586,8 +586,8 @@ class UniqueConstraintTests(TestCase):
         )
         self.assertEqual(
             repr(constraint),
-            "<UniqueConstraint: fields=('foo', 'bar') name='unique_fields' "
-            "deferrable=Deferrable.IMMEDIATE>",
+            "UniqueConstraint(fields=('foo', 'bar'), name='unique_fields', "
+            "deferrable=Deferrable.IMMEDIATE)",
         )
 
     def test_repr_with_include(self):
@@ -598,8 +598,8 @@ class UniqueConstraintTests(TestCase):
         )
         self.assertEqual(
             repr(constraint),
-            "<UniqueConstraint: fields=('foo', 'bar') name='include_fields' "
-            "include=('baz_1', 'baz_2')>",
+            "UniqueConstraint(fields=('foo', 'bar'), name='include_fields', "
+            "include=('baz_1', 'baz_2'))",
         )
 
     def test_repr_with_opclasses(self):
@@ -610,8 +610,8 @@ class UniqueConstraintTests(TestCase):
         )
         self.assertEqual(
             repr(constraint),
-            "<UniqueConstraint: fields=('foo', 'bar') name='opclasses_fields' "
-            "opclasses=['text_pattern_ops', 'varchar_pattern_ops']>",
+            "UniqueConstraint(fields=('foo', 'bar'), name='opclasses_fields', "
+            "opclasses=['text_pattern_ops', 'varchar_pattern_ops'])",
         )
 
     def test_repr_with_nulls_distinct(self):
@@ -622,8 +622,8 @@ class UniqueConstraintTests(TestCase):
         )
         self.assertEqual(
             repr(constraint),
-            "<UniqueConstraint: fields=('foo', 'bar') name='nulls_distinct_fields' "
-            "nulls_distinct=False>",
+            "UniqueConstraint(fields=('foo', 'bar'), name='nulls_distinct_fields', "
+            "nulls_distinct=False)",
         )
 
     def test_repr_with_expressions(self):
@@ -634,8 +634,7 @@ class UniqueConstraintTests(TestCase):
         )
         self.assertEqual(
             repr(constraint),
-            "<UniqueConstraint: expressions=(Lower(F('title')), F('author')) "
-            "name='book_func_uq'>",
+            "UniqueConstraint(Lower(F('title')), F('author'), name='book_func_uq')",
         )
 
     def test_repr_with_violation_error_message(self):
@@ -647,8 +646,8 @@ class UniqueConstraintTests(TestCase):
         self.assertEqual(
             repr(constraint),
             (
-                "<UniqueConstraint: expressions=(F('baz__lower'),) "
-                "name='unique_lower_baz' violation_error_message='BAZ'>"
+                "UniqueConstraint(F('baz__lower'), "
+                "name='unique_lower_baz', violation_error_message='BAZ')"
             ),
         )
 
@@ -661,8 +660,8 @@ class UniqueConstraintTests(TestCase):
         self.assertEqual(
             repr(constraint),
             (
-                "<UniqueConstraint: expressions=(F('baz__lower'),) "
-                "name='unique_lower_baz' violation_error_code='baz'>"
+                "UniqueConstraint(F('baz__lower'), "
+                "name='unique_lower_baz', violation_error_code='baz')"
             ),
         )
 

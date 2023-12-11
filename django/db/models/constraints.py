@@ -322,32 +322,32 @@ class UniqueConstraint(BaseConstraint):
         )
 
     def __repr__(self):
-        return "<%s:%s%s%s%s%s%s%s%s%s%s>" % (
-            self.__class__.__qualname__,
-            "" if not self.fields else " fields=%s" % repr(self.fields),
-            "" if not self.expressions else " expressions=%s" % repr(self.expressions),
-            " name=%s" % repr(self.name),
-            "" if self.condition is None else " condition=%s" % self.condition,
-            "" if self.deferrable is None else " deferrable=%r" % self.deferrable,
-            "" if not self.include else " include=%s" % repr(self.include),
-            "" if not self.opclasses else " opclasses=%s" % repr(self.opclasses),
-            (
-                ""
-                if self.nulls_distinct is None
-                else " nulls_distinct=%r" % self.nulls_distinct
-            ),
-            (
-                ""
-                if self.violation_error_code is None
-                else " violation_error_code=%r" % self.violation_error_code
-            ),
-            (
-                ""
-                if self.violation_error_message is None
-                or self.violation_error_message == self.default_violation_error_message
-                else " violation_error_message=%r" % self.violation_error_message
-            ),
-        )
+        args = []
+        if self.expressions:
+            args.extend(map(repr, self.expressions))
+        if self.fields:
+            args.append(f"fields={self.fields!r}")
+        if self.name:
+            args.append(f"name={self.name!r}")
+        if self.condition is not None:
+            args.append(f"condition={self.condition!r}")
+        if self.deferrable is not None:
+            args.append(f"deferrable={self.deferrable!r}")
+        if self.include:
+            args.append(f"include={self.include!r}")
+        if self.opclasses:
+            args.append(f"opclasses={self.opclasses!r}")
+        if self.nulls_distinct is not None:
+            args.append(f"nulls_distinct={self.nulls_distinct!r}")
+        if self.violation_error_code is not None:
+            args.append(f"violation_error_code={self.violation_error_code!r}")
+        if (
+            self.violation_error_message is not None
+            and self.violation_error_message != self.default_violation_error_message
+        ):
+            args.append(f"violation_error_message={self.violation_error_message!r}")
+        args = ", ".join(args)
+        return f"{self.__class__.__qualname__}({args})"
 
     def __eq__(self, other):
         if isinstance(other, UniqueConstraint):
