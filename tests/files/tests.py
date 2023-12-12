@@ -18,7 +18,6 @@ from django.core.files.uploadedfile import (
     TemporaryUploadedFile,
     UploadedFile,
 )
-from django.test import override_settings
 
 try:
     from PIL import Image, features
@@ -282,7 +281,7 @@ class TemporaryUploadedFileTests(unittest.TestCase):
 
     def test_file_upload_temp_dir_pathlib(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
-            with override_settings(FILE_UPLOAD_TEMP_DIR=Path(tmp_dir)):
+            with self.settings(FILE_UPLOAD_TEMP_DIR=Path(tmp_dir)):
                 with TemporaryUploadedFile(
                     "test.txt", "text/plain", 1, "utf-8"
                 ) as temp_file:

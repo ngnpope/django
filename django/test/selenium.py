@@ -5,7 +5,7 @@ from functools import wraps
 from pathlib import Path
 
 from django.conf import settings
-from django.test import LiveServerTestCase, override_settings, tag
+from django.test import LiveServerTestCase, tag
 from django.utils.functional import classproperty
 from django.utils.module_loading import import_string
 from django.utils.text import capfirst
@@ -177,7 +177,7 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
     @contextmanager
     def rtl(self):
         with self.desktop_size():
-            with override_settings(LANGUAGE_CODE=settings.LANGUAGES_BIDI[-1]):
+            with self.settings(LANGUAGE_CODE=settings.LANGUAGES_BIDI[-1]):
                 yield
 
     @contextmanager
