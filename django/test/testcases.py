@@ -359,6 +359,10 @@ class SimpleTestCase(unittest.TestCase):
         pass
 
     if not PY311:
+        # Backport of unittest.TestCase.enterContext() from Python 3.11.
+        def enterContext(self, cm):
+            return _enter_context(cm, self.addCleanup)
+
         # Backport of unittest.TestCase.enterClassContext() from Python 3.11.
         @classmethod
         def enterClassContext(cls, cm):
