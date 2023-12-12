@@ -214,8 +214,7 @@ class SimpleTestCase(unittest.TestCase):
             cls.enterClassContext(override_settings(**cls._overridden_settings))
         if cls._modified_settings:
             cls.enterClassContext(modify_settings(cls._modified_settings))
-        cls._add_databases_failures()
-        cls.addClassCleanup(cls._remove_databases_failures)
+        cls.enterClassContext(cls._add_databases_failures())
 
     @classmethod
     def _validate_databases(cls):
@@ -239,6 +238,7 @@ class SimpleTestCase(unittest.TestCase):
         return frozenset(cls.databases)
 
     @classmethod
+    @contextmanager
     def _add_databases_failures(cls):
         cls.databases = cls._validate_databases()
         for alias in connections:
@@ -260,9 +260,7 @@ class SimpleTestCase(unittest.TestCase):
                 new=cls.ensure_connection_patch_method(),
             )
         )
-
-    @classmethod
-    def _remove_databases_failures(cls):
+        yield
         for alias in connections:
             if alias in cls.databases:
                 continue
@@ -1796,7 +1794,6 @@ class SerializeMixin:
 
     @classmethod
     def setUpClass(cls):
-        cls._lockfile = open(cls.lockfile)
-        cls.addClassCleanup(cls._lockfile.close)
+        cls._lockfile = cls.enterClassContext(open(cls.lockfile))
         locks.lock(cls._lockfile, locks.LOCK_EX)
         super().setUpClass()

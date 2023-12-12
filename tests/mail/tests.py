@@ -1573,9 +1573,7 @@ class FileBackendTests(BaseEmailBackendTests, SimpleTestCase):
         super().setUp()
         self.tmp_dir = self.mkdtemp()
         self.addCleanup(shutil.rmtree, self.tmp_dir)
-        _settings_override = self.settings(EMAIL_FILE_PATH=self.tmp_dir)
-        _settings_override.enable()
-        self.addCleanup(_settings_override.disable)
+        self.enterContext(self.settings(EMAIL_FILE_PATH=self.tmp_dir))
 
     def mkdtemp(self):
         return tempfile.mkdtemp()
@@ -1728,12 +1726,12 @@ class SMTPBackendTestsBase(SimpleTestCase):
             hostname="127.0.0.1",
             port=port,
         )
-        cls._settings_override = cls.settings(
-            EMAIL_HOST=cls.smtp_controller.hostname,
-            EMAIL_PORT=cls.smtp_controller.port,
+        cls.enterClassContext(
+            cls.settings(
+                EMAIL_HOST=cls.smtp_controller.hostname,
+                EMAIL_PORT=cls.smtp_controller.port,
+            )
         )
-        cls._settings_override.enable()
-        cls.addClassCleanup(cls._settings_override.disable)
         cls.smtp_controller.start()
         cls.addClassCleanup(cls.stop_smtp)
 

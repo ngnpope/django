@@ -468,12 +468,11 @@ class TestCollectionFilesOverride(CollectionTestCase):
 
         os.utime(self.testfile_path, (self.orig_atime - 1, self.orig_mtime - 1))
 
-        settings_with_test_app = self.modify_settings(
-            INSTALLED_APPS={"prepend": "staticfiles_test_app"},
+        self.enterContext(extend_sys_path(self.temp_dir))
+        self.enterContext(
+            self.modify_settings(INSTALLED_APPS={"prepend": "staticfiles_test_app"})
         )
-        with extend_sys_path(self.temp_dir):
-            settings_with_test_app.enable()
-        self.addCleanup(settings_with_test_app.disable)
+
         super().setUp()
 
     def test_ordering_override(self):
