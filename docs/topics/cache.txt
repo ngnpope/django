@@ -78,13 +78,15 @@ database or filesystem usage.
 
 After installing Memcached itself, you'll need to install a Memcached
 binding. There are several Python Memcached bindings available; the
-two supported by Django are :pypi:`pylibmc` and :pypi:`pymemcache`.
+three supported by Django are :pypi:`pymemcache`, :pypi:`pylibmc`, and
+:pypi:`python-memcached`.
 
 To use Memcached with Django:
 
 * Set :setting:`BACKEND <CACHES-BACKEND>` to
-  ``django.core.cache.backends.memcached.PyMemcacheCache`` or
-  ``django.core.cache.backends.memcached.PyLibMCCache`` (depending on your
+  ``django.core.cache.backends.memcached.PyMemcacheCache``,
+  ``django.core.cache.backends.memcached.PyLibMCCache``, or
+  ``django.core.cache.backends.memcached.MemcachedCache`` (depending on your
   chosen memcached binding)
 
 * Set :setting:`LOCATION <CACHES-LOCATION>` to ``ip:port`` values,
@@ -165,6 +167,12 @@ Without a doubt, *none* of the Django caching backends should be used for
 permanent storage -- they're all intended to be solutions for caching, not
 storage -- but we point this out here because memory-based caching is
 particularly temporary.
+
+.. versionchanged:: 5.1
+
+    The ``MemcachedCache`` backend is reinstated having previously been removed
+    in Django 4.1 due to incompatibilities that have been resolved as of
+    ``python-memcached>=1.62``.
 
 .. _redis:
 
@@ -522,6 +530,19 @@ of 60 seconds, and a maximum capacity of 1000 items::
             "LOCATION": "/var/tmp/django_cache",
             "TIMEOUT": 60,
             "OPTIONS": {"MAX_ENTRIES": 1000},
+        }
+    }
+
+Here's an example configuration for a ``python-memcached`` based backend with
+an object size limit of 2MB::
+
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
+            "LOCATION": "127.0.0.1:11211",
+            "OPTIONS": {
+                "server_max_value_length": 2 * 1024 ** 2,
+            },
         }
     }
 

@@ -1446,6 +1446,9 @@ configured_caches = {}
 for _cache_params in settings.CACHES.values():
     configured_caches[_cache_params["BACKEND"]] = _cache_params
 
+MemcachedCache_params = configured_caches.get(
+    "django.core.cache.backends.memcached.MemcachedCache"
+)
 PyLibMCCache_params = configured_caches.get(
     "django.core.cache.backends.memcached.PyLibMCCache"
 )
@@ -1577,6 +1580,34 @@ class BaseMemcachedTests(BaseCacheTests):
         with mock.patch.object(cache._class, "set_multi", side_effect=fail_set_multi):
             failing_keys = cache.set_many({"key": "value"})
             self.assertEqual(failing_keys, ["key"])
+
+
+@unittest.skipUnless(MemcachedCache_params, "MemcachedCache backend not configured")
+@override_settings(
+    CACHES=caches_setting_for_tests(
+        base=MemcachedCache_params,
+        exclude=memcached_excluded_caches,
+    )
+)
+class MemcachedCacheTests(BaseMemcachedTests, TestCase):
+    base_params = MemcachedCache_params
+    incr_decr_type_error = ValueError
+
+    def test_memcached_uses_highest_pickle_version(self):
+        for cache_key in settings.CACHES:
+            with self.subTest(cache_key=cache_key):
+                cache = caches[cache_key]
+                self.assertEqual(cache._cache.pickleProtocol, pickle.HIGHEST_PROTOCOL)
+
+    @override_settings(
+        CACHES=caches_setting_for_tests(
+            base=MemcachedCache_params,
+            exclude=memcached_excluded_caches,
+            OPTIONS={"server_max_value_length": 9999},
+        )
+    )
+    def test_memcached_options(self):
+        self.assertEqual(cache._cache.server_max_value_length, 9999)
 
 
 @unittest.skipUnless(PyLibMCCache_params, "PyLibMCCache backend not configured")

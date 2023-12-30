@@ -1,5 +1,6 @@
 "Memcached cache backend"
 
+import pickle
 import re
 import time
 
@@ -139,6 +140,17 @@ class BaseMemcachedCache(BaseCache):
     def validate_key(self, key):
         for warning in memcache_key_warnings(key):
             raise InvalidCacheKey(warning)
+
+
+class MemcachedCache(BaseMemcachedCache):
+    """An implementation of a cache binding using python-memcached."""
+
+    def __init__(self, server, params):
+        import memcache
+        super().__init__(
+            server, params, library=memcache, value_not_found_exception=ValueError
+        )
+        self._options = {"pickleProtocol": pickle.HIGHEST_PROTOCOL} | self._options
 
 
 class PyLibMCCache(BaseMemcachedCache):

@@ -11,6 +11,7 @@ Pillow >= 6.2.1; sys.platform != 'win32' or python_version < '3.13'
 # pylibmc/libmemcached can't be built on Windows.
 pylibmc; sys.platform != 'win32'
 pymemcache >= 3.4.0
+python-memcached >= 1.62
 pywatchman; sys.platform != 'win32'
 PyYAML
 redis >= 3.4.0

@@ -138,7 +138,9 @@ Asynchronous views
 Cache
 ~~~~~
 
-* ...
+* The ``django.core.cache.backends.memcached.MemcachedCache`` backend that was
+  removed in Django 4.1 due to incompatibilities has been restored and requires
+  ``python-memcached>=1.62``.
 
 CSRF
 ~~~~

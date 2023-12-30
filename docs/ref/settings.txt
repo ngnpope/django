@@ -153,6 +153,7 @@ The cache backend to use. The built-in cache backends are:
 * ``'django.core.cache.backends.locmem.LocMemCache'``
 * ``'django.core.cache.backends.memcached.PyMemcacheCache'``
 * ``'django.core.cache.backends.memcached.PyLibMCCache'``
+* ``'django.core.cache.backends.memcached.MemcachedCache'``
 * ``'django.core.cache.backends.redis.RedisCache'``
 
 You can use a cache backend that doesn't ship with Django by setting
