@@ -74,6 +74,14 @@ class PickleabilityTestCase(TestCase):
         klass = Event.NotUpdated
         self.assertIs(pickle.loads(pickle.dumps(klass)), klass)
 
+    def test_intermediary_model_class(self):
+        klass = M2MModel.groups.through
+        self.assertIs(pickle.loads(pickle.dumps(klass)), klass)
+
+    def test_intermediary_model_not_updated_class(self):
+        klass = M2MModel.groups.through.NotUpdated
+        self.assertIs(pickle.loads(pickle.dumps(klass)), klass)
+
     def test_forward_relatedobjectdoesnotexist_class(self):
         # ForwardManyToOneDescriptor
         klass = Event.group.RelatedObjectDoesNotExist
